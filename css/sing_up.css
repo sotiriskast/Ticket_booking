@@ -1,0 +1,162 @@
+/* ///// inputs /////*/
+.container-contact-form,.container-calendar-form {
+  width: 65%;
+  margin: auto;
+}
+
+.flex-box-form {
+  box-sizing: border-box;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  
+ 
+}
+.flex-box-form>div {
+  margin-bottom: 15px;
+  
+ 
+}
+
+.flex-box-form label {
+  display: block;
+ 
+}
+
+input,
+textarea,
+div.dropdown-select {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+
+  color: #212529;
+  text-align: left;
+  width: 100%;
+
+}
+
+
+div.ui.input.right.icon>input{
+  border: none;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.dropdown-select,.text-form-control,textarea,.input {
+  background-color: white;
+ 
+  border: none;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid black !important;
+  
+}
+
+select.dropdown-select{
+  background: url(http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png) no-repeat right white;
+  -webkit-appearance: none;
+  appearance: none;
+  background-position-x: right +10px;
+
+}
+.dropdown-select:focus{
+color: #495057;
+background-color: #fff;
+border-color: #80bdff;
+outline: 0;
+box-shadow: 0 0 0 .2rem rgba(0,123,255,.25);
+}
+
+
+@media only screen and (max-width: 560) {
+  .container-contact-form  {
+    width: 95%;
+    font-size: .7rem !important;
+  }
+  h1{
+    font-size: 1rem;
+  }
+  h5{
+    font-size: 0.7rem;
+  }
+  input,
+  textarea,
+  div.dropdown-select,.input {
+    font-size: .7rem;
+  }
+  .dropdown-select,.text-form-control,textarea {
+    font-size: .7rem;
+    padding: 3px;   
+  }
+  .flex-box-form>div {
+    margin-bottom: 5px;
+    
+   
+  }
+  .flex-box-form label {
+    font-size: .6rem;
+    
+   
+  }
+  
+  
+}
+
+
+@media only screen and (max-width: 780px) {
+  .container-contact-form  {
+    width: 75%;
+    font-size: 1rem;
+  }
+  .dropdown-select,.text-form-control,textarea,.input {
+    font-size: 1rem;
+    padding: 3px;   
+  }
+
+  .flex-box-form>div {
+    margin-bottom: 5px;
+    
+   
+  }
+ 
+}
+    * The message box is shown when the user clicks on the password field */
+    #message {
+    display:none;
+    background: #f1f1f1;
+    color: #000;
+    position: relative;
+    padding: 20px;
+    margin-top: 10px;
+    }
+
+    #message p {
+    padding: 10px 35px;
+    font-size: 18px;
+    }
+
+    /* Add a green text color and a checkmark when the requirements are right */
+    .valid {
+    color: green;
+    }
+
+    .valid:before {
+    position: relative;
+    left: -35px;
+    content: "✔";
+    }
+
+    /* Add a red text color and an "x" when the requirements are wrong */
+    .invalid {
+    color: red;
+    }
+
+    .invalid:before {
+    position: relative;
+    left: -35px;
+    content: "✖";
+    }
+
+
