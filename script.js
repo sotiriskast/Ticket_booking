@@ -17,17 +17,77 @@ function fix_nav_bar() {
 // semantic 
 
 $(document).ready(function () {
-      $('.logout').click(function() {
-                    var logout = $.trim($('.logout').text());
-                    
-                    if(logout=="Logout"){
-                        var href='homepage.php?user_logout=true';
-                        window.location =href;
-                    }
-                });
-                
+    var valid_email;
+    //display the modal form 
+    $('.logout').click(function () {
+        var logout = $.trim($('.logout').text());
 
-    // $("$user_login").click(function () {
+        if (logout == "Logout") {
+            var href = 'homepage.php?user_logout=true';
+            window.location = href;
+        }
+    });
+    //valid email
+
+    //check the email if is valid
+
+
+    $('#sign_up_email').on('blur', function (e) {
+        e.preventDefault();
+        var email = $('#sign_up_email').val();
+
+        $.ajax({
+            url: 'sign_up_form.php',
+            type: 'POST',
+            data: {
+                'email_ajax': email
+            },
+
+            beforeSend: function () {
+                $("#email_result").html('<div class="ui active inline loader"></div>');
+            },
+            success: function (response) {
+                // alert(response.d);
+                if (response == true) {
+                    $("#email_result").text('Invalid email').addClass('text-danger');
+                } else {
+                    $("#email_result").text('Email correct').removeClass('text-danger');
+                }
+            },
+
+        });
+    });
+    $('#tel_ajax').on('blur', function (e) {
+        var tel = $('#tel_ajax').val();
+       
+        $.ajax({
+            url: 'sign_up_form.php',
+            type: 'POST',
+            data: {
+                'tel_ajax': tel,
+            },
+            beforeSend: function () {
+                $("#tel_result").html('<div class="ui active inline loader"></div>');
+            },
+            success: function (response) {
+                if (response == true) {
+                    // alert(response);
+                    $('#tel_result').show().text('Invalid telephone').addClass('text-danger');
+                } else  {
+                    $('#tel_result').show().text('Telephone correct').removeClass('text-danger');
+                }
+            }
+        });
+    });
+    $('#sign_up').click(function () {
+        if ($('#passwd').val() != $('#re_passwd').val()) {
+            $('#passwd_valid').text('Password are not same');
+            return false;
+        }
+    })
+  
+
+    // $("$user_login").on('blur',function () {
     //     var username = $('#email').val(); // get the content of what user typed ( in textarea ) 
     //     var password = $('#passwd').val(); // get the content of what user typed ( in textarea ) 
     //     $.ajax({
@@ -45,7 +105,7 @@ $(document).ready(function () {
     //             }
 
     //             if (success == true) {
-             
+
     //                 setTimeout("location.href = 'homepage.php';", 1000);
     //             }
     //         }
