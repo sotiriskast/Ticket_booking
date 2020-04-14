@@ -1,7 +1,7 @@
 <?php
-require_once '../connect_dbase.php';
-require_once 'function.php';
 session_start();
+require_once 'function.php';
+
 
 
 // if ($sl->rowCount() == 1) {
@@ -50,8 +50,9 @@ session_start();
 <body>
 
     <?php
-    require_once 'navigation_bar.php';
     require_once 'login_form.php';
+    require_once 'navigation_bar.php';
+
     ?>
 
     <div class="slideshow">

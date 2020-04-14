@@ -14,18 +14,16 @@ btn;
 if (isset($_GET['user_logout']) && $_GET['user_logout'] == 'true') {
     $login_button = 'Log in';
     $user_account = '';
-    unset($_POST['login']);
+    unset($_SESSION['user_login']);
 }
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['login'])) {
         $email = $_POST['login_email'];
         $passwd = $_POST['login_passwd'];
-        $query = 'SELECT member_email, member_passwd,member_name
-              FROM Member WHERE member_email=?';
-        $log = $db->prepare($query);
-        $log->execute(array($email));
-        if ($log->rowCount() == 1) {
-            $login = $log->fetch();
+
+        if (is_email_exist($email)) {
+            $login = is_email_exist($email);
             if (password_verify($passwd, $login['member_passwd'])) {
                 $_SESSION['user_login'] = $login;
                 $login_button = 'Logout';
@@ -40,28 +38,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
 
                 $user_account = <<<btn
-            <a class="nav-link " id="user_account" href="#">
-            <i class="cart arrow down icon"></i>
-            {$login['member_name']} Account's
-            </a>
+                <a class="nav-link " id="user_account" href="#">
+                <i class="cart arrow down icon"></i>
+              {$login['member_name']} Account's
+              </a>
 btn;
                 // echo json_encode(array(
                 //     "success" => $result
 
                 // ));
             } else {
-                $error_button = 'btn-danger';
+                $error_button = ' text-danger';
                 // echo json_encode(array(
                 //     "success" => $result,
                 //     "message" => $errors,
                 // ));
+
             }
+        } else {
+            $error_button = ' text-danger';
+            // echo json_encode(array(
+            //     "success" => $result,
+            //     "message" => $errors,
+            // ));
+
         }
     }
 }
 
 
-if (isset($_COOKIE[$cookie_name])) {
+if (isset($_COOKIE)) {
     $_SESSION['username'] = $_COOKIE['user'];
     $_SESSION['email'] = $_COOKIE['email'];
 }
@@ -69,15 +75,14 @@ if (isset($_COOKIE[$cookie_name])) {
 
 <?php
 //print when the user is logout
-if (empty($_SESSION['user_login'])) :
+if (!isset($_SESSION['user_login'])) :
 ?>
-
     <div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel"><i class="user icon"></i><?php $p = (isset($_COOKIE['user'])) ?  "Welcome back {$_COOKIE['user']}" :  "Sign in";
-                                                                                            echo $f ?> </h5>
+                    <h5 class="modal-title" id="exampleModalLabel"><i class="user icon"></i><?php $p = (isset($_SESSION['username'])) ?  "Welcome back {$_SESSION['username']}" :  "Sign in";
+                                                                                            echo $p ?> </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -97,7 +102,7 @@ if (empty($_SESSION['user_login'])) :
                                     <div class="field">
                                         <label>Password</label>
                                         <div class="ui left icon input">
-                                            <input name="login_passwd" type="password" id="paswwd">
+                                            <input name="login_passwd" type="password" id="paswwd" placeholder="Password">
                                             <i class="lock icon"></i>
                                         </div>
                                     </div>
@@ -116,7 +121,10 @@ if (empty($_SESSION['user_login'])) :
                         </div>
                     </div>
                 </div>
-
+                <a class="ui small button" href="#">
+                    <i class="forgot icon"></i>
+                    Forgot password
+                </a>
             </div>
         </div>
     </div>
