@@ -1,25 +1,75 @@
 <?php
 require_once 'countries.php';
 require_once  'function.php';
-require_once  '../connect_dbase.php';
+session_start();
 
 if (isset($_POST['submit'])) {
-    if (isset($_REQUEST['country']) || is_numeric($_REQUEST['tel']) || is_valid_name($_REQUEST['first_name']) == false || is_valid_name($_REQUEST['last_name']) == false || is_valid_email($_REQUEST['email'])) {
-        $error = 'Please enter correct information';
+    if (!is_numeric($_POST['tel']) || is_valid_name($_POST['first_name']) == false || is_valid_name($_POST['last_name']) == false || is_valid_email($_POST['email']) == false) {
+        $confirm_message = 'Please enter correct information';
     } else {
-        if (isset($_REQUEST['chk_box'])) {
-            // $query = 'INSERT INTO Member() 
-            // VALUES(:title, :link)';
-            // $prep = $db->prepare();
-            // $prep->execute();
+        if (isset($_POST['chk_box'])) {
+            if (is_email_exist($_POST['email'], $db) == true) {
+                $confirm_message = 'Please select different email';
+            } else {
+                if (is_telephone_exist($_POST['tel']) == true) {
+                    $confirm_message = 'Please select different telephone';
+                } else {
+
+                    $name = $_POST['first_name'];
+                    $surname = $_POST['last_name'];
+                    $email = $_POST['email'];
+                    $tel = $_POST['tel'];
+                    $status = 'Bronze';
+                    $passwd = $_POST['passwd'];
+
+                    if (insert_new_member($name, $surname,  $email,  $tel, $status,  $passwd)) {
+                        $_SESSION['user_login'] = $login;
+                        $login_button = 'Logout';
+                        $error_button = '';
+
+                        $cookie_name = "user";
+                        $cookie_value = $login['member_name'];
+                        setcookie($cookie_name, $cookie_value, time() + (80000) * 60, "/"); //valid for two moths
+
+                        $cookie_name = "email";
+                        $cookie_value = $login['member_email'];
+                        setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
+
+                        $user_account = <<<btn
+                        <a class="nav-link " id="user_account" href="#">
+                        <i class="cart arrow down icon"></i>
+                      {$login['member_name']} Account's
+                      </a>
+btn;
+                        header('Location: homepage.php');
+                    } else {
+                        $confirm_message = 'Something went wrong please try again later';
+                    }
+                }
+            }
+        } else {
+            $chk_box_clicked = 'Please accept term and condition';
         }
     }
 }
-
-// $hash= password_hash("sotiris", PASSWORD_BCRYPT)."\n";
-// var_dump($hash);
-
-
+if (isset($_POST['email_ajax'])) {
+    if (is_email_exist($_POST['email_ajax']) == false) {
+        $response = true;
+        return $response;
+    } else {
+        $response = false;
+        return $response;
+    }
+}
+if (isset($_POST['tel_ajax'])) {
+    if (is_telephone_exist($_POST['tel_ajax']) == false) {
+        $response = true;
+        return $response;
+    } else {
+        $response = false;
+        return $response;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,11 +109,11 @@ if (isset($_POST['submit'])) {
         <div class="ui very relaxed stackable grid">
             <div class="column">
                 <div class="container-contact-form w-75 m-auto">
-                    <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post" name="contact_form">
+                    <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post">
                         <div class="flex-box-form">
                             <div class="col-6">
                                 <label for="first-name"><span>&starf;</span> First Name</label>
-                                <input id="first_name" type="text" class="form-control text-form-control" name="first_name" required placeholder="First name" value="<?php echo $user_f_name; ?>"  pattern="^[A-Za-z]+$">
+                                <input id="first_name" type="text" class="form-control text-form-control" name="first_name" required placeholder="First name" value="<?php echo $user_f_name; ?>" pattern="^[A-Za-z]+$">
                             </div>
                             <div class="col-6">
                                 <label for="last-name"><span>&starf;</span> Last Name</label>
@@ -72,63 +122,70 @@ if (isset($_POST['submit'])) {
                         </div>
                         <div class="flex-box-form">
                             <div class="col-6">
-                                <label for="email"><span>&starf;</span>Email</label>
-                                <input id="email" type="email" class="form-control text-form-control" name="email" placeholder="Email" value="<?php echo $user_email; ?>" required aria-describedby="emailHelp" pattern="[^@]+@[^\.]+\..+">
+                                <label for="sign_up_email"><span>&starf;</span>Email <span id="email_result"></span></label>
+                                <input id="sign_up_email" type="email" name="email" class="form-control text-form-control" placeholder="Email" value="<?php echo $user_email; ?>" required aria-describedby="emailHelp" pattern="[^@]+@[^\.]+\..+" title="This field is require (ex. example@mail.com)">
                             </div>
                             <div class="col-6">
-                                <label for="tel"><span>&starf;</span>Telephone</label>
-                                <input id="tel" type="tel" class="form-control text-form-control" name="tel" placeholder="Telephone" value="<?php echo $mobile; ?>" required aria-describedby="telephone" pattern="^[0-9]+$">
+                                <label for="tel_ajax"><span>&starf;</span>Telephone <span id="tel_result"></span></label>
+                                <input id="tel_ajax" type="tel" class="form-control text-form-control" name="tel" maxlength="15" placeholder="Telephone" value="<?php echo $mobile; ?>" required aria-describedby="telephone" pattern="^[0-9]+$">
                             </div>
                         </div>
-                        <div class="flex-box-form">
+                        <!-- <div class="flex-box-form">
                             <div class="col-6">
-                                <label for="dob"> Date of birth</label>
+                                <label for="datepicker"> Date of birth</label>
                                 <div class="ui right icon ">
-                                    <input id="datepicker" class="form-control text-form-control" type="text" />
+                                    <input id="datepicker" type="text" name="dob" class="form-control text-form-control" readonly />
                                 </div>
                                 <script>
                                     $('#datepicker').datepicker({});
                                 </script>
                             </div>
                             <div class="col-6">
-                                <label for="country"><span>&starf;</span> Country</label>
-                                <select class="ui dropdown dropdown-select " name="country" id="country" required>
+                                <label for="country">Country</label>
+                                <select class="ui dropdown dropdown-select " name="country" id="country">
                                     <option value="">Select Country</option>
                                     <?php
                                     // add all country
-                                    asort($EU);
-                                    foreach ($EU as $key => $value) {
-                                        echo "<option>$value</option>";
-                                    }
+                                    // asort($EU);
+                                    // foreach ($EU as $key => $value) {
+                                    //     echo "<option>$value</option>";
+                                    // }
                                     ?>
                                 </select>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="flex-box-form">
                             <div class="col-6">
-                                <label for="first-name"><span>&starf;</span> Password</label>
-                                <input type="password" class="form-control text-form-control" name="passwd" required placeholder="Password" id="passwd" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+                                <label for="passwd"><span>&starf;</span> Password</label>
+                                <input id="passwd" type="password" class="form-control text-form-control" name="passwd" required placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
                             </div>
                             <div class="col-6">
-                                <label for="last-name"><span>&starf;</span> re-Password</label>
-                                <input type="password" class="form-control text-form-control" name="re_passwd" required placeholder="re_passwd" aria-describedby="basic-addon1">
+                                <label for="re_passwd_entry"><span>&starf;</span> re-Password</label>
+                                <input id="re_passwd_entry" type="password" class="form-control text-form-control" name="re_passwd" required placeholder="Re entry Password" aria-describedby="basic-addon1">
                             </div>
                         </div>
                         <div class="flex-box-form">
                             <div class="col-12">
-                                <h2>Data Privacy &amp; Term &amp; Condition</h2>
+                                <p></p>
                                 <h5>I have read the privacy statement is in compliance with the Personal Data Protection Code and hereby agree that:</h5>
                             </div>
                             <div class="col-12">
                                 <div class="ui checkbox">
                                     <input id="policy" required type="checkbox" name="chk_box">
-                                    <label for="policy">I acknowledge that I have read and agree to the <a href="#">Privacy Policy</a></label>
+                                    <label for="policy">I acknowledge that I have read and agree to the <a href="#">Privacy Policy </a> <span class="small text-danger "><?php echo $chk_box_clicked ?></span></label>
                                 </div>
                             </div>
                             <div class="col-12">
-                                <input class="ui blue submit button  w-100" id="psw" type="submit" value="Sign up" name="submit">
+                                <input class="ui blue submit button  w-100" id="submit" type="submit" value="Sign up" name="submit">
                             </div>
 
+                            <div class="col-12">
+                                <p><?php
+                                    //display result on screen if the message has sended or not
+                                    echo $confirm_message; ?>
+                                </p>
+
+                            </div>
                             <div id="message">
                                 <h3>Password must contain the following:</h3>
                                 <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
@@ -138,7 +195,6 @@ if (isset($_POST['submit'])) {
                             </div>
 
                             <script>
-                            
                                 var myInput = document.getElementById("passwd");
                                 var letter = document.getElementById("letter");
                                 var capital = document.getElementById("capital");
@@ -198,24 +254,16 @@ if (isset($_POST['submit'])) {
                                 }
                             </script>
                         </div>
-                </div>
-                </form>
-                <div class="flex-box-form">
-                    <div class="col-12">
-                        <p><?php
-                            //display result on screen if the message has sended or not
-                            echo $confirm_message; ?>
-                        </p>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
 
 
 
+    <script src="../script.js"></script>
 </body>
 
 </html>
