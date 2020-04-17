@@ -1,7 +1,31 @@
 window.onscroll = function () {
-    fix_nav_bar()
+
+    fix_nav_bar();
+    countable_number();
+
 };
 
+function countable_number() {
+    if (window.scrollY > 3000) {
+        var amount = 5000;
+        $({
+            countNum: 0 //starting point of existing cache
+        }).animate({
+            countNum: amount //ending
+        }, {
+            duration: 600,
+            easing: 'linear',
+            step: function () {
+                $('.customer').html(Math.ceil(this.countNum));
+            },
+            complete: function () {
+                $('.customer').html(amount);
+                //alert('finished');
+            }
+        });
+
+    }
+}
 
 function fix_nav_bar() {
     if (window.scrollY > 300) {
@@ -14,7 +38,7 @@ function fix_nav_bar() {
     }
 }
 
-// semantic 
+
 
 $(document).ready(function () {
     var valid_email;
@@ -27,11 +51,29 @@ $(document).ready(function () {
             window.location = href;
         }
     });
+    $('.favorite').click(function () {
+        var logout = $.trim($('.logout').text());
+
+        if (logout == "Logout") {
+            var href = 'basket.php';
+            window.location = href;
+        } else {
+            $('.logout').click();
+        }
+    });
+    $('.basket').click(function () {
+        var logout = $.trim($('.logout').text());
+
+        if (logout == "Logout") {
+            var href = 'basket.php';
+            window.location = href;
+        } else {
+            $('.logout').click();
+        }
+    });
     //valid email
 
     //check the email if is valid
-
-
     $('#sign_up_email').on('blur', function (e) {
         e.preventDefault();
         var email = $('#sign_up_email').val();
@@ -59,7 +101,7 @@ $(document).ready(function () {
     });
     $('#tel_ajax').on('blur', function (e) {
         var tel = $('#tel_ajax').val();
-       
+
         $.ajax({
             url: 'sign_up_form.php',
             type: 'POST',
@@ -73,7 +115,7 @@ $(document).ready(function () {
                 if (response == true) {
                     // alert(response);
                     $('#tel_result').show().text('Invalid telephone').addClass('text-danger');
-                } else  {
+                } else {
                     $('#tel_result').show().text('Telephone correct').removeClass('text-danger');
                 }
             }
@@ -85,31 +127,7 @@ $(document).ready(function () {
             return false;
         }
     })
-  
-
-    // $("$user_login").on('blur',function () {
-    //     var username = $('#email').val(); // get the content of what user typed ( in textarea ) 
-    //     var password = $('#passwd').val(); // get the content of what user typed ( in textarea ) 
-    //     $.ajax({
-    //         type: "POST",
-    //         url: "homepage.php",
-    //         data: "login_email=" + username + "&login_passwd=" + password,
-    //         dataType: "json",
-    //         success: function (data) {
-    //             var success = data['success'];
-    //             if (success == false) {
-    //                 var error = data['message'];
-    //                 alert(error); // just in case somebody to click on share witout writing anything :
 
 
-    //             }
 
-    //             if (success == true) {
-
-    //                 setTimeout("location.href = 'homepage.php';", 1000);
-    //             }
-    //         }
-
-    //     }); //end ajax             
-    // }); //end click function
 }); //end ready function
