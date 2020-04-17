@@ -10,10 +10,10 @@
                 <a class="nav-link" href="../html/homepage.php">Home </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Tour List</a>
+                <a class="nav-link" href="tour_list.php">Tour List</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Aboout us</a>
+                <a class="nav-link" href="#">About us</a>
 
             </li>
             <li class="nav-item">
@@ -23,14 +23,14 @@
         <div class="navbar-nav">
             <?php echo $user_account; ?>
 
-            <a class="nav-link " href="#">
+            <a class="nav-link basket" href="#">
                 <i class="cart arrow down icon"></i>
                 Basket
             </a>
 
-            <a class="nav-link" href="#">
+            <a class="nav-link favorite" href="#">
                 <i class=" heart outline icon"></i>
-                Favorite
+                Wash list
             </a>
             <a class="nav-link <?php echo $error_button; ?> logout" data-toggle="modal" data-target="#login" style="cursor: pointer">
                 <i class=" user circle outline icon"></i><?php echo $login_button; ?>

@@ -22,7 +22,7 @@ require_once 'function.php';
     <title>Chorkoiris Tour Excursion | Book Now</title>
     <link rel="shortcut icon" href="https://res.cloudinary.com/sotiris/image/upload/v1586768666/Tour_Excursion/logo_f9ozsq.png" type="image/x-icon" />
 
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> -->
 
     <link rel="stylesheet" type="text/css" href="../semantic/dist/semantic.min.css">
     <link rel="stylesheet" href="../semantic/dist/components/dropdown.css">
@@ -85,111 +85,23 @@ require_once 'function.php';
             </p>
         </div>
     </section>
-    <section class="ui container w-100 pb-5">
-        <div class="ui w-75 pt-5 m-auto text-center">
-            <h1> <i class="gem outline icon" style="color: #007bff;"></i>Popular places</h1> <a class="ml-3" href="$">View all places</a>
-            <div class="ui container-fluid">
-                <div class="ui mt-5 row">
-                    <div class="col" style="width: max-content">
-                        <div class="ui  image ">
-                            <div class="ui blue ribbon label z-index-1000 mt-1">
-                                Popular
-                            </div>
-                            <div class="ui card">
-                                <div class="content"></div>
-                                <div class="image">
-                                    <img src="https://www.creative.com.cy/wp-content/uploads/2017/03/halloumi.jpg">
-                                </div>
-                                <div class="content">
-                                    <span class="right floated">
-                                        <i class="euro icon"></i>
-                                        46</span>
 
-                                    <span class="left floated">
 
-                                        Salamis
-                                    </span>
-
-                                </div>
-                                <div class="extra content ">
-                                    <div class="ui large  transparent left icon input">
-
-                                        <a class="w-100 " href="http://">Read More</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="ui image ">
-                            <div class="ui blue ribbon label z-index-1000 mt-1">
-                                Popular
-                            </div>
-                            <div class="ui card">
-                                <div class="content"></div>
-                                <div class="image">
-                                    <img src="https://www.creative.com.cy/wp-content/uploads/2017/03/halloumi.jpg">
-                                </div>
-                                <div class="content">
-                                    <span class="right floated">
-                                        <i class="heart outline like icon"></i>
-                                        17 likes
-                                    </span>
-                                    <i class="comment icon"></i>
-                                    3 comments
-                                </div>
-                                <div class="extra content">
-                                    <div class="ui large transparent left icon input">
-                                        <i class="heart outline icon"></i>
-                                        <input type="text" placeholder="Add Comment...">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="ui  image ">
-                            <div class="ui blue ribbon label z-index-1000 mt-1">
-                                Popular
-                            </div>
-                            <div class="ui card">
-                                <div class="content"></div>
-                                <div class="image">
-                                    <img src="https://www.creative.com.cy/wp-content/uploads/2017/03/halloumi.jpg">
-                                </div>
-                                <div class="content">
-                                    <span class="right floated">
-                                        <i class="heart outline like icon"></i>
-                                        17 likes
-                                    </span>
-                                    <i class="comment icon"></i>
-                                    3 comments
-                                </div>
-                                <div class="extra content">
-                                    <div class="ui large transparent left icon input">
-                                        <i class="heart outline icon"></i>
-                                        <input type="text" placeholder="Add Comment...">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <?php include_once 'recent_event.php' ?>
+    <?php
+    include_once  'popular_event.php';
+    include_once 'recent_event.php'; ?>
     <section class="ui overview bg-light pb-5">
 
         <div class="ui segment p-5" style="background-color: transparent">
             <div class="ui two column very relaxed grid">
                 <div class="column">
                     <h1>Why Book With Us?</h1>
-                    <p class="mt-2 mb-2">s</p>
+                    <p class="mt-5 mb-5"></p>
                     <p class="mt-5"> <i class="thumbs up outline icon blue"></i>All places and activities are carefully by us</p>
                     <p><i class="euro sign  icon blue"></i>Best price guarantee &amp; Hassle free!</p>
                     <p><i class="star outline  icon blue"></i>We are an award winning agency</p>
-                    <p><i class="heart outline  icon blue"></i>Trusted by more than 80.000 customers</p>
+                    <p><i class="mobile alternate icon  blue"></i>24/7 Global support</p>
+                    <p><i class="tripadvisor icon blue"></i>A Trip advisor Company</p>
                     <button class="ui primary button">
                         Find out More!
                     </button>
@@ -197,10 +109,6 @@ require_once 'function.php';
                 <div class="column ">
                     <div class="w-100 "><img width="100%" height="100%" src="https://www.creative.com.cy/wp-content/uploads/2017/03/halloumi.jpg" alt="" srcset=""></div>
 
-                    <p></p>
-                    <p></p>
-                    <p></p>
-                    <p></p>
                 </div>
             </div>
 
@@ -210,24 +118,40 @@ require_once 'function.php';
         <h1>We were featured in</h1>
         <div class="ui container-fluid">
             <div class="ui mt-5 row row-col-4">
-                <div class="col ">
-                    <div class="w-25 login"><img width="100%" height="100%" src="https://w0.pngwave.com/png/288/367/forbes-logo-others-png-clip-art.png" alt="" srcset=""></div>
+                <div class="col">
+                    <p class="h2 click_trusted">Trusted by <span class="customer">0</span> +</span>
                 </div>
-                <div class="col ">
-                    <div class="w-25 "><i class="tripadvisor icon massive green"></i></div>
+                <div class="col">
+                    <p class="h2">Review <span class="review">0</span> +</p>
                 </div>
-                <div class="col ">
-                    <div class="w-25 "><img width="100%" height="100%" src="https://www.awardslimo.com/wp-content/uploads/Awards-Limousine-Service-Inc-Logo-retina.png" alt="" srcset=""></div>
+                <div class="col">
+                    <p class="h2">Sales <span class="sales">0</span> +</p>
                 </div>
-                <div class="col ">
-                    <div class="w-25 "><img width="100%" height="100%" src="https://blog.tui.co.uk/wp-content/uploads/2016/07/bta2016_vote_online_500px-e1467625496990.png" alt="" srcset=""></div>
-                </div>
-
             </div>
         </div>
+        <script>
+            $(".click_trusted").on('click',function(e) {
+                var amount = 5000;
 
-
-        <div style="height:100vh"></div>
+                $({
+                    countNum:0
+                }).animate({
+                    countNum: amount //ending
+                }, {
+                    duration: 800,
+                    easing: 'swing',
+                    step: function() {
+                        $('.customer').html(Math.ceil(this.countNum));
+                    },
+                    complete: function() {
+                        $('.customer').html(amount);
+                        //alert('finished');
+                    }
+                });
+                //saveAsNewName(amount)
+            });
+        </script>
+        <div style="height:10vh"></div>
 
 
 

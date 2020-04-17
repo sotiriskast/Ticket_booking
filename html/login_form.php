@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $passwd = $_POST['login_passwd'];
 
         if (is_email_exist($email)) {
-            $login = is_email_exist($email);
+            $login = get_member_by_email($email);
             if (password_verify($passwd, $login['member_passwd'])) {
                 $_SESSION['user_login'] = $login;
                 $login_button = 'Logout';
@@ -95,7 +95,7 @@ if (!isset($_SESSION['user_login'])) :
                                     <div class="field">
                                         <label>Email</label>
                                         <div class="ui left icon input">
-                                            <input name="login_email" type="text" id="email" placeholder="email" value="<?php $_SESSION['email'] ?>">
+                                            <input name="login_email" type="text" id="email" placeholder="email" value="<?php echo $_SESSION['email'] ?>">
                                             <i class="user icon"></i>
                                         </div>
                                     </div>
