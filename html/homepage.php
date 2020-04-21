@@ -87,9 +87,9 @@ require_once 'function.php';
     </section>
 
 
-    <?php
-    include_once  'popular_event.php';
-    include_once 'recent_event.php'; ?>
+    <?php include_once  'popular_event.php'; ?>
+    <hr>
+    <?php include_once 'recent_event.php'; ?>
     <section class="ui overview bg-light pb-5">
 
         <div class="ui segment p-5" style="background-color: transparent">
@@ -130,11 +130,11 @@ require_once 'function.php';
             </div>
         </div>
         <script>
-            $(".click_trusted").on('click',function(e) {
+            $(".click_trusted").on('click', function(e) {
                 var amount = 5000;
 
                 $({
-                    countNum:0
+                    countNum: 0
                 }).animate({
                     countNum: amount //ending
                 }, {

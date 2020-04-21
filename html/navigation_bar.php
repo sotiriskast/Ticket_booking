@@ -28,9 +28,9 @@
                 Basket
             </a>
 
-            <a class="nav-link favorite" href="#">
-                <i class=" heart outline icon"></i>
-                Wash list
+            <a class="nav-link favorite" href="wish_list.php">
+                <i class=" heart <?php echo $wish_heart_nav ?> icon"></i>
+                Wish list
             </a>
             <a class="nav-link <?php echo $error_button; ?> logout" data-toggle="modal" data-target="#login" style="cursor: pointer">
                 <i class=" user circle outline icon"></i><?php echo $login_button; ?>

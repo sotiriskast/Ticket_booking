@@ -62,7 +62,7 @@ require_once 'function.php';
             <a id="tour" class="ui button" href="tour_list.php?sort=desc"><i class="filter icon"></i>Sort by max. Price</a>
         </div>
         <?php
-       
+
         foreach (get_all_excursion($_REQUEST['sort']) as $e) {
             //position 0 (price)
             //position 1 (date)
@@ -101,9 +101,7 @@ require_once 'function.php';
 print;
             echo $show;
         }
-
         ?>
-
         <script id="dd">
             $('.ui.rating').rating('disable')
         </script>

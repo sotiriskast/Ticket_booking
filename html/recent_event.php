@@ -1,7 +1,7 @@
 
 <section class="ui container w-100 pb-5">
     <div class="ui w-75 pt-5 m-auto text-center">
-        <h1><i class="clock outline pink icon"></i>Up coming Event</h1> <a class="ml-3" href="$">View all events</a>
+        <h1><i class="clock outline pink icon"></i>Up coming Event</h1> <a class="ml-3" href="tour_list.php">View all events</a>
         <div class="ui container-fluid">
             <div class="ui mt-5 row">
                 <?php
@@ -14,6 +14,7 @@
                     //position 5 (title)
                     $show = <<<print
                         <div class="col">
+                        <a href="tour_details.php?title={$e[6]}" style="display: block">
                         <div class="ui  image ">
                             <div class="ui pink ribbon label z-index-1000 mt-1">
                                 Recent
@@ -47,6 +48,7 @@
                                 </div>
                             </div>
                         </div>
+                        </a>
                     </div>
 print;
                     echo $show;

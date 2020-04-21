@@ -41,8 +41,9 @@ function fix_nav_bar() {
 
 
 $(document).ready(function () {
-    var valid_email;
+   
     //display the modal form 
+    
     $('.logout').click(function () {
         var logout = $.trim($('.logout').text());
 
@@ -51,6 +52,7 @@ $(document).ready(function () {
             window.location = href;
         }
     });
+    //display login modal form when the user is logout
     $('.favorite').click(function () {
         var logout = $.trim($('.logout').text());
 
@@ -66,6 +68,16 @@ $(document).ready(function () {
 
         if (logout == "Logout") {
             var href = 'basket.php';
+            window.location = href;
+        } else {
+            $('.logout').click();
+        }
+    });
+    $('.wish_list').click(function () {
+        var logout = $.trim($('.logout').text());
+
+        if (logout == "Logout") {
+            var href = 'wish_list.php';
             window.location = href;
         } else {
             $('.logout').click();

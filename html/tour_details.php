@@ -1,19 +1,41 @@
 <?php
+
+$cookie_name ='title-'.$_REQUEST['title'];
+$cookie_value = $_REQUEST['title'];
+setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
+
 session_start();
 require_once 'function.php';
 
-if (isset($_REQUEST['title'])) {
+
+if (isset($_GET['title'])) {
     $image = get_images($_REQUEST['title']);
     $excursion = get_single_excursion($_REQUEST['title']);
     $tour = get_tour_excursion($_REQUEST['title']);
     $review = get_review($_REQUEST['title']);
+    $title = $_REQUEST['title'];
+}
+if (isset($_SESSION['user_login'])) {
+    if (is_in_wish_list($_SESSION['user_login']['member_id'], $_REQUEST['title'])) {
+        $wash_list = '';
+    } else {
+        $wash_list = 'outline';
+    }
 }
 
+if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
+    if (insert_wash_list($_SESSION['user_login']['member_id'], $_REQUEST['title'])) {
+        $wash_list = '';
+    } else {
+        $wash_list = 'outline';
+    }
+}
 // if ($sl->rowCount() == 1) {
 //     $_SESSION['login'] = $_POST['username'];
 // } else {
 //     $error = 'invalid username or password';
 // }
+
 ?>
 
 <!DOCTYPE html>
@@ -55,19 +77,21 @@ if (isset($_REQUEST['title'])) {
     </style>
 </head>
 
-<body>
+<body style="background-color: rgb(238,238,250)">
     <?php
     require_once 'login_form.php';
     require_once 'navigation_bar.php';
 
     ?>
-    <div style="height: 15vh"></div>
-    <div class="ui warning message container corona-virus p-4">
-        <i class="close icon"></i>
-        <div class="header">
-            <i class="info circle icon red"></i>
-            To limit the spread of the coronavirus, attractions may be closed or have partial closures. Please consult government travel advisories before booking.
-            The WHO is closely monitoring the coronavirus and more information can be found <a class="ui " href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019">here</a>
+    <div style="height: 10vh"></div>
+    <div class="container-fluid">
+        <div class="ui warning message container corona-virus p-4 ">
+            <i class="close icon"></i>
+            <div class="header">
+                <i class="info circle icon red"></i>
+                To limit the spread of the coronavirus, attractions may be closed or have partial closures. Please consult government travel advisories before booking.
+                The WHO is closely monitoring the coronavirus and more information can be found <a class="ui " href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019">here</a>
+            </div>
         </div>
     </div>
     <script>
@@ -76,77 +100,82 @@ if (isset($_REQUEST['title'])) {
         });
     </script>
 
-    <!-- <div class="ui breadcrumb">
+    <div class="ui breadcrumb">
         <a class="section" href="homepage.php">Home</a>
         <i class="right chevron icon divider"></i>
         <a class="section" href="tour_list.php">Tour List</a>
         <i class="right arrow icon divider"></i>
         <div class="active section">Tour Information</div>
-    </div> -->
-    <div class="container pb-0 mb-0">
-        <div class="row pb-0 mb-0">
-            <div class="col pl-5">
-                <p class="h1"><?php echo $excursion['exc_title']; ?></p>
+    </div>
+    <div class="container-fluid ">
+        <div class="container pb-0 mb-0">
+            <div class="row pb-0 mb-0">
+                <div class="col pl-5">
+                    <p class="display-2"><?php echo $excursion['exc_title']; ?></p>
+                </div>
             </div>
-        </div>
-        <div class="row pb-0 mb-0">
-            <div class="col pl-5">
-                <div class="ui star rating" data-rating="<?php echo round($excursion['average']); ?>" data-max-rating="5"></div><span>( <?php echo round($excursion['average'], 2); ?> ) <a class="btn-link " href="#review"> Total review ( <?php echo round($excursion['total_count'], 0); ?> )</a></span>
-            </div>
-            <div class="col text-right pr-5">
-            <a class="btn-link " href="#review"><i class="ui heart outline icon red"></i>Add to Wash list</a>
+            <div class="row pb-0 mb-0">
+                <div class="col pl-5">
+                    <div class="ui star rating" data-rating="<?php echo round($excursion['average']); ?>" data-max-rating="5"></div><span>( <?php echo round($excursion['average'], 2); ?> ) <a class="btn-link " href="#review"> Total review ( <?php echo round($excursion['total_count'], 0); ?> )</a></span>
+                </div>
+                <div class="col text-right pr-5">
+                    <a class="ui wish_list" style="text-decoration: none" href="tour_details.php?&title=<?php echo $title ?>&list=yes"><i class="ui heart <?php echo $wash_list ?> icon red"></i>Add to Wish list</a>
+                </div>
             </div>
         </div>
     </div>
     <div class="container-fluid pt-0 mt-0">
         <div class="p-2 m-2">
             <div class="row">
-                <div class="col bg-light">
-                    <form action="tour_details.php" method="GET">
-                        <p class="h2"> Price From: <i class="ui euro icon"></i><?php echo $tour[0]['tour_price'] ?></p>
-                        <p class="h4">Starting point: <?php echo $tour[0]['tour_starting_point'] ?></p>
-                        <div class="ui">
-                            <label for="datepicker"> Selectet Day</label>
-                            <div class="ui right icon w-100">
-                                <input id="datepicker" type="text" name="datapicker" class="form-control text-form-control" readonly />
+                <div class="col">
+                    <div class="container-fluid  bg-light">
+                        <form action="tour_details.php" method="GET">
+                            <p class="h2"> Price From: <i class="ui euro icon"></i><?php echo $tour[0]['tour_price'] ?></p>
+                            <p class="h4">Starting point: <?php echo $tour[0]['tour_starting_point'] ?></p>
+                            <div class="ui">
+                                <label for="datepicker"> Selectet Day</label>
+                                <div class="ui right icon w-100">
+                                    <input id="datepicker" type="text" name="datapicker" class="form-control text-form-control" readonly />
+                                </div>
                             </div>
-                        </div>
-                        <div class="ui">
-                            <label for="adults"><span>&starf;</span> Adults (13+)</label>
-                            <!--surround the select box with a "custom-select" DIV element. Remember to set the width:-->
-                            <select name="adults" id="adults" class="dropdown-select adults" style="width: 100%" required>
-                                <option value="1">1</option>
-                                <option selected value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
-                        </div>
+                            <div class="ui">
+                                <label for="adults"><span>&starf;</span> Adults (13+)</label>
+                                <!--surround the select box with a "custom-select" DIV element. Remember to set the width:-->
+                                <select name="adults" id="adults" class="dropdown-select adults" style="width: 100%" required>
+                                    <option value="1">1</option>
+                                    <option selected value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
 
 
-                        <div class="ui">
-                            <label for="kids"><span>&starf;</span> Kids (2-12)</label>
-                            <select name="kids" id="kids" class="dropdown-select kids" style="width: 100%" required>
-                                <option selected value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option disabled value="3">3</option>
-                            </select>
+                            <div class="ui">
+                                <label for="kids"><span>&starf;</span> Kids (2-12)</label>
+                                <select name="kids" id="kids" class="dropdown-select kids" style="width: 100%" required>
+                                    <option selected value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option disabled value="3">3</option>
+                                </select>
 
-                        </div>
-                        <div class="ui">
-                            <label for="last-name"><span>&starf;</span> Infants (0-2)</label>
-                            <select name="infants" class="dropdown-select infants" required id="infants" style="width: 100%">
-                                <option selected value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                            </select>
-                        </div>
-                        <script>
-                            $('#datepicker').datepicker({});
-                        </script>
-                        <input type="hidden" name="title" value="<?php echo $_REQUEST['title'] ?>">
-                        <input class="mt-3 w-100 btn input bg-primary p-2 text-white" type="submit" value="Check Availability" name="submit">
-                    </form>
+                            </div>
+                            <div class="ui">
+                                <label for="last-name"><span>&starf;</span> Infants (0-2)</label>
+                                <select name="infants" class="dropdown-select infants" required id="infants" style="width: 100%">
+                                    <option selected value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
+
+                            <script>
+                                $('#datepicker').datepicker();
+                            </script>
+                            <input type="hidden" name="title" value="<?php echo $_REQUEST['title'] ?>">
+                            <input class="mt-3 w-100 btn input bg-primary p-2 text-white" type="submit" value="Check Availability" name="submit">
+                        </form>
+                    </div>
                 </div>
 
                 <div class="col-7 ">
@@ -290,6 +319,8 @@ print;
             <div class="ui overview mt-5 text-center">
                 <p class="display-3"><i class="credit card outline icon violet"></i>Customers Who Bought This Tour Also Bought</p>
                 <?php include_once 'sugestion_tour.php' ?>
+                <hr>
+                <?php include_once 'popular_event.php' ?>
             </div>
         </div>
     </div>

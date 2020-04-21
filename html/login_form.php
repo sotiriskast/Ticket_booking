@@ -1,10 +1,11 @@
 <?php
+$wish_heart_nav='outline';
 if (isset($_SESSION['user_login'])) {
     $login_button = 'Logout';
     $user_account = <<<btn
     <a class="nav-link " id="user_account" href="#">
     <i class="cart arrow down icon"></i>
-    {$login['member_name']} Account's
+    {$_SESSION['user_login']['member_name']} Account's
     </a>
 btn;
 } else {
@@ -31,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 $cookie_name = "user";
                 $cookie_value = $login['member_name'];
-                setcookie($cookie_name, $cookie_value, time() + (80000) * 60, "/"); //valid for two moths
+                setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
 
                 $cookie_name = "email";
                 $cookie_value = $login['member_email'];
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $user_account = <<<btn
                 <a class="nav-link " id="user_account" href="#">
                 <i class="cart arrow down icon"></i>
-              {$login['member_name']} Account's
+              {$_SESSION['user_login']['member_name']} Account's
               </a>
 btn;
                 // echo json_encode(array(

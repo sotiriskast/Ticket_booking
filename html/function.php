@@ -43,7 +43,7 @@ function is_valid_email($email)
 function get_member_by_email($email)
 {
   global $db;
-  $query = 'SELECT member_email, member_passwd,member_name
+  $query = 'SELECT member_email, member_passwd,member_name,member_id
               FROM Member WHERE member_email=?';
   $log = $db->prepare($query);
   $log->bindValue(1, $email);
@@ -86,7 +86,7 @@ function is_telephone_exist($tel)
   if ($login == null) {
     return  false;
   } else {
-    return false;
+    return true;
   }
 }
 
@@ -113,7 +113,7 @@ function random_member_id()
   $chk = $mb_id->fetch();
   $mb_id->closeCursor();
 
-  if ($chk == null) {
+  if ($chk != null) {
     //use recursive if is exist to call again the method
     return random_member_id();
   } else {
@@ -207,7 +207,7 @@ function recent_event()
   }
   $exc->closeCursor();
   for ($i = 0; $i < 4; $i++) {
-    $arr[$i] = array($recent[$i]['tour_date'], $recent[$i]['tour_price'], $tour[$i]['tour_starting_point'], $tour[$i]['tour_time_start'], $images[$i]['img_name'], $name_exc[$i]['exc_title']);
+    $arr[$i] = array($recent[$i]['tour_date'], $recent[$i]['tour_price'], $tour[$i]['tour_starting_point'], $tour[$i]['tour_time_start'], $images[$i]['img_name'], $name_exc[$i]['exc_title'],$images[$i]['exc_id']);
   }
 
 
@@ -269,6 +269,63 @@ function popular_event()
   return   $arr;
 }
 
+
+function browse_event($id)
+{
+  global $db;
+  $query = 'SELECT exc_title,exc_id
+            FROM Excursion
+            WHERE exc_id=? ';
+
+  $exc = $db->prepare($query);
+  $exc->bindValue(1,$id);
+  $exc->execute();
+  $excursion = $exc->fetchAll();
+  $exc->closeCursor();
+
+  $query = 'SELECT *
+  FROM   Tour_excursion
+  WHERE  Tour_excursion.exc_id =?';
+
+  $tr = $db->prepare($query);
+  foreach ($excursion as $t) {
+    $tr->bindValue(1, $t['exc_id']);
+    $tr->execute();
+    $tour[] = $tr->fetch();
+  }
+  $tr->closeCursor();
+
+  $today = (new DateTime())->add(new DateInterval("P1D"))->format("Y/m/d");
+  $query = 'SELECT  *
+            FROM Tour_date
+            WHERE tour_date >=? AND tour_id=?';
+
+  $rce = $db->prepare($query);
+  foreach ($tour as $t) {
+    $rce->bindValue(1, $today);
+    $rce->bindValue(2, $t['tour_id']);
+    $rce->execute();
+    $tour_date[] = $rce->fetch();
+  }
+  $rce->closeCursor();
+
+  $query = 'SELECT Excursion_image.img_name,exc_id
+            FROM Excursion_image 
+            WHERE exc_id=?';
+  $img = $db->prepare($query);
+  foreach ($excursion as $t) {
+    $img->bindValue(1, $t['exc_id']);
+    $img->execute();
+    $images[] = $img->fetch();
+  }
+  $img->closeCursor();
+ 
+    $arr = array($tour_date[0]['tour_date'], $tour_date[0]['tour_price'], $tour[0]['tour_starting_point'], $tour[0]['tour_time_start'], $images[0]['img_name'], $excursion[0]['exc_title'], $excursion[0]['exc_id']);
+  
+
+
+  return   $arr;
+}
 function get_all_excursion($sort = null)
 {
   global $db;
@@ -340,6 +397,11 @@ function get_all_excursion($sort = null)
   }
   return   $arr;
 }
+
+
+//==========
+//GET IMAGES
+//==========
 function get_images($exc_id)
 {
   global $db;
@@ -426,4 +488,139 @@ function get_review($exc_id)
   $tour_date = $rev->fetchAll();
   $rev->closeCursor();
   return $tour_date;
+}
+
+
+//GET ALL WISH LIST EXCURSION
+//WISH LIST
+//============================
+//CHECK IF IS IN THE WISH LIST
+function is_in_wish_list($member, $tour)
+{
+  global $db;
+  $query = 'SELECT *
+         FROM Wish_list
+         WHERE tour_id=? AND member_id=?';
+  $find = $db->prepare($query);
+  $find->bindValue(1, $tour);
+  $find->bindValue(2, $member);
+  $find->execute();
+  if ($find->fetch() == null) {
+    $find->closeCursor();
+    return false;
+  } else {
+    $find->closeCursor();
+    return true;
+  }
+}
+
+//insert into wash list
+function insert_wash_list($member, $tour)
+
+{
+  global $db;
+  if (is_in_wish_list($member, $tour) == false) {
+    $query = 'INSERT INTO Wish_list(tour_id,member_id)
+              VALUES(?,?)';
+    $add = $db->prepare($query);
+    $add->bindValue(1, $tour);
+    $add->bindValue(2, $member);
+    if ($add->execute()) {
+      $add->closeCursor();
+      return true;
+    }
+    $add->closeCursor();
+    return false;
+  } else {
+    $query = 'DELETE FROM Wish_list
+           WHERE tour_id=? AND member_id=?
+           limit 1';
+    $rm = $db->prepare($query);
+    $rm->bindValue(1, $tour);
+    $rm->bindValue(2, $member);
+    if ($rm->execute()) {
+      $rm->closeCursor();
+      return false;
+    }
+    $rm->closeCursor();
+    return true;
+  }
+}
+function get_wish_list($member_id){
+  global $db;
+  $query = 'SELECT tour_id
+         FROM Wish_list
+         WHERE member_id=?';
+  $find = $db->prepare($query);
+  $find->bindValue(1, $member_id);
+  $find->execute();
+  $wish=$find->fetchAll();
+  $find->closeCursor();
+  return $wish;
+}
+
+function get_wish_excursion($exc_id)
+{
+  global $db;
+  $query = 'SELECT exc_title,exc_id,exc_duration,exc_description
+            FROM Excursion
+            WHERE exc_id=?';
+  $exc = $db->prepare($query);
+  $exc->bindValue(1,$exc_id);
+  $exc->execute();
+  $excursion = $exc->fetchAll();
+  $exc->closeCursor();
+
+  $query = 'SELECT *
+  FROM   Tour_excursion
+  WHERE  Tour_excursion.exc_id =?';
+
+  $tr = $db->prepare($query);
+  foreach ($excursion as $t) {
+    $tr->bindValue(1, $t['exc_id']);
+    $tr->execute();
+    $tour[] = $tr->fetch();
+  }
+  $tr->closeCursor();
+
+  $today = (new DateTime())->add(new DateInterval("P1D"))->format("Y/m/d");
+  $query = 'SELECT  *
+            FROM Tour_date
+            WHERE tour_date >=? AND tour_id=?';
+
+  $rce = $db->prepare($query);
+  foreach ($tour as $t) {
+    $rce->bindValue(1, $today);
+    $rce->bindValue(2, $t['tour_id']);
+    $rce->execute();
+    $tour_date[] = $rce->fetch();
+  }
+  $rce->closeCursor();
+
+  $query = 'SELECT Excursion_image.img_name,exc_id
+            FROM Excursion_image 
+            WHERE exc_id=?';
+  $img = $db->prepare($query);
+  foreach ($excursion as $t) {
+    $img->bindValue(1, $t['exc_id']);
+    $img->execute();
+    $images[] = $img->fetch();
+  }
+  $img->closeCursor();
+
+  $query = 'SELECT sum(review)/count(review) 
+        FROM 1517_TOURS_AND_EXCURSION.Review
+        WHERE exc_id=?';
+  $rev = $db->prepare($query);
+  foreach ($excursion as $t) {
+    $rev->bindValue(1, $t['exc_id']);
+    $rev->execute();
+    $review[] = $rev->fetch();
+  }
+  $rev->closeCursor();
+  for ($i = 0; $i < count($excursion); $i++) {
+    $arr[$i] = array($tour_date[$i]['tour_price'], $tour_date[$i]['tour_date'], $tour[$i]['tour_starting_point'], $tour[$i]['tour_time_start'], $images[$i]['img_name'], $excursion[$i]['exc_title'], $excursion[$i]['exc_description'], round($review[$i][0], 0), $excursion[$i]['exc_duration'], $excursion[$i]['exc_id']);
+  }
+
+  return   $arr;
 }
