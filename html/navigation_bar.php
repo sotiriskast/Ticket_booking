@@ -23,11 +23,15 @@
         <div class="navbar-nav">
             <?php echo $user_account; ?>
 
-            <a class="nav-link basket" href="#">
-                <i class="cart arrow down icon"></i>
-                Basket
-            </a>
-
+            <div class="ui compact  ">
+                <a class="nav-link basket item" href="#">
+                    <i class="cart arrow down icon"></i>
+                    Basket
+                    <?php echo $label_badget ?>
+                  
+                   
+                </a>
+            </div>
             <a class="nav-link favorite" href="wish_list.php">
                 <i class=" heart <?php echo $wish_heart_nav ?> icon"></i>
                 Wish list

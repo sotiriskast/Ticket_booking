@@ -58,7 +58,7 @@ require_once 'function.php';
         if ($arr != null) : ?>
             <?php
             foreach ($arr as $k) {
-                foreach (get_wish_excursion($k['tour_id']) as $e) {
+                foreach (get_wish_excursion($k['exc_id']) as $e) {
                     //position 0 (price)
                     //position 1 (date)
                     //position 2 (starting point)
@@ -184,6 +184,9 @@ print;
             </section>
         <?php endif; ?>
     </div>
+    <script>
+           $('.ui.rating').rating('disable')
+    </script>
 </body>
 
 </html>

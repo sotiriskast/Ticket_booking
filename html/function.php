@@ -207,7 +207,7 @@ function recent_event()
   }
   $exc->closeCursor();
   for ($i = 0; $i < 4; $i++) {
-    $arr[$i] = array($recent[$i]['tour_date'], $recent[$i]['tour_price'], $tour[$i]['tour_starting_point'], $tour[$i]['tour_time_start'], $images[$i]['img_name'], $name_exc[$i]['exc_title'],$images[$i]['exc_id']);
+    $arr[$i] = array($recent[$i]['tour_date'], $recent[$i]['tour_price'], $tour[$i]['tour_starting_point'], $tour[$i]['tour_time_start'], $images[$i]['img_name'], $name_exc[$i]['exc_title'], $images[$i]['exc_id']);
   }
 
 
@@ -278,7 +278,7 @@ function browse_event($id)
             WHERE exc_id=? ';
 
   $exc = $db->prepare($query);
-  $exc->bindValue(1,$id);
+  $exc->bindValue(1, $id);
   $exc->execute();
   $excursion = $exc->fetchAll();
   $exc->closeCursor();
@@ -319,13 +319,52 @@ function browse_event($id)
     $images[] = $img->fetch();
   }
   $img->closeCursor();
- 
-    $arr = array($tour_date[0]['tour_date'], $tour_date[0]['tour_price'], $tour[0]['tour_starting_point'], $tour[0]['tour_time_start'], $images[0]['img_name'], $excursion[0]['exc_title'], $excursion[0]['exc_id']);
-  
+
+  $arr = array($tour_date[0]['tour_date'], $tour_date[0]['tour_price'], $tour[0]['tour_starting_point'], $tour[0]['tour_time_start'], $images[0]['img_name'], $excursion[0]['exc_title'], $excursion[0]['exc_id']);
+
 
 
   return   $arr;
 }
+function dispaly_availability($exc_id, $date, $starting_point = null)
+{
+  global $db;
+
+  if($starting_point==null){
+    $query = 'SELECT  DISTINCT tour_starting_point  FROM Tour_excursion';
+    $exc = $db->prepare($query);
+    $exc->execute();
+    $availabiltiy = $exc->fetchAll();
+    $exc->closeCursor();
+    foreach($availabiltiy as $e){
+     $starting_point.=$e[0].'|'; 
+    }
+    $starting_point=substr($starting_point,0,-1);
+ 
+  }
+
+  $query = 'SELECT E.exc_id,E.exc_title,E.exc_duration,E.exc_availability,
+                   T.tour_id,T.tour_starting_point,T.tour_time_start,
+                   D.tour_date,D.tour_price,D.tour_price_kids,
+                   S.gd_ssn, S.gd_name,S.gd_surname
+            FROM   Tour_excursion T
+            JOIN Guide_tour G USING(tour_id)
+            JOIN Tour_date D USING(tour_id)
+            JOIN Excursion E USING(exc_id)
+            JOIN Guide_staff S ON G.gd_ssn=S.gd_ssn
+            WHERE  T.exc_id =? 
+            AND tour_date=? AND tour_starting_point REGEXP ?';
+
+  $exc = $db->prepare($query);
+  $exc->bindValue(1, $exc_id);
+  $exc->bindValue(2, $date);
+  $exc->bindValue(3, $starting_point);
+  $exc->execute();
+  $availabiltiy = $exc->fetchAll();
+  $exc->closeCursor();
+  return $availabiltiy;
+}
+
 function get_all_excursion($sort = null)
 {
   global $db;
@@ -494,13 +533,13 @@ function get_review($exc_id)
 //GET ALL WISH LIST EXCURSION
 //WISH LIST
 //============================
-//CHECK IF IS IN THE WISH LIST
+
 function is_in_wish_list($member, $tour)
 {
   global $db;
   $query = 'SELECT *
          FROM Wish_list
-         WHERE tour_id=? AND member_id=?';
+         WHERE exc_id=? AND member_id=?';
   $find = $db->prepare($query);
   $find->bindValue(1, $tour);
   $find->bindValue(2, $member);
@@ -520,7 +559,7 @@ function insert_wash_list($member, $tour)
 {
   global $db;
   if (is_in_wish_list($member, $tour) == false) {
-    $query = 'INSERT INTO Wish_list(tour_id,member_id)
+    $query = 'INSERT INTO Wish_list(exc_id,member_id)
               VALUES(?,?)';
     $add = $db->prepare($query);
     $add->bindValue(1, $tour);
@@ -533,7 +572,7 @@ function insert_wash_list($member, $tour)
     return false;
   } else {
     $query = 'DELETE FROM Wish_list
-           WHERE tour_id=? AND member_id=?
+           WHERE exc_id=? AND member_id=?
            limit 1';
     $rm = $db->prepare($query);
     $rm->bindValue(1, $tour);
@@ -546,15 +585,16 @@ function insert_wash_list($member, $tour)
     return true;
   }
 }
-function get_wish_list($member_id){
+function get_wish_list($member_id)
+{
   global $db;
-  $query = 'SELECT tour_id
-         FROM Wish_list
-         WHERE member_id=?';
+  $query = 'SELECT exc_id
+            FROM Wish_list
+            WHERE member_id=?';
   $find = $db->prepare($query);
   $find->bindValue(1, $member_id);
   $find->execute();
-  $wish=$find->fetchAll();
+  $wish = $find->fetchAll();
   $find->closeCursor();
   return $wish;
 }
@@ -566,7 +606,7 @@ function get_wish_excursion($exc_id)
             FROM Excursion
             WHERE exc_id=?';
   $exc = $db->prepare($query);
-  $exc->bindValue(1,$exc_id);
+  $exc->bindValue(1, $exc_id);
   $exc->execute();
   $excursion = $exc->fetchAll();
   $exc->closeCursor();
@@ -623,4 +663,29 @@ function get_wish_excursion($exc_id)
   }
 
   return   $arr;
+}
+function get_lanquage($gd_ssn)
+{
+  global $db;
+  $query = 'SELECT * FROM Guide_language
+            WHERE gd_ssn=?';
+  $lan = $db->prepare($query);
+  $lan->bindValue(1, $gd_ssn);
+  $lan->execute();
+  $lang = $lan->fetchAll();
+  $lan->closeCursor();
+  return $lang;
+}
+function count_booking($tour_id)
+{
+  global $db;
+  $query = 'SELECT count(*)
+            FROM 1517_TOURS_AND_EXCURSION.Reservation
+            where tour_id=?';
+  $lan = $db->prepare($query);
+  $lan->bindValue(1, $tour_id);
+  $lan->execute();
+  $total = $lan->fetchAll();
+  $lan->closeCursor();
+  return $total;
 }

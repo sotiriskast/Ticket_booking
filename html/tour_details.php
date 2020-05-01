@@ -1,19 +1,36 @@
 <?php
 
-$cookie_name ='title-'.$_REQUEST['title'];
-$cookie_value = $_REQUEST['title'];
-setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
-
 session_start();
 require_once 'function.php';
 
 
-if (isset($_GET['title'])) {
+
+
+if (isset($_REQUEST['basket'])) {
+
+    $cookie_name = 'basket';
+    $cookie_value = json_decode($_COOKIE['basket']);
+    $cookie_value[] = array($_REQUEST['title'], $_REQUEST['date'], $_REQUEST['starting'], $_REQUEST['adults'], $_REQUEST['kids'], $_REQUEST['infants']);
+    setcookie($cookie_name, json_encode($cookie_value), time() + (86400) * 60, "/"); //valid for two moths 
+    $label_badget = '  <p class="ui red circular label">N</p>';
+}
+
+
+if (isset($_REQUEST['title'])) {
+
+    $cookie_name = 'title-' . $_REQUEST['title'];
+    $cookie_value = $_REQUEST['title'];
+    setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
+
     $image = get_images($_REQUEST['title']);
+
     $excursion = get_single_excursion($_REQUEST['title']);
     $tour = get_tour_excursion($_REQUEST['title']);
     $review = get_review($_REQUEST['title']);
     $title = $_REQUEST['title'];
+} else {
+    header('Location: tour_list.php');
+    die();
 }
 if (isset($_SESSION['user_login'])) {
     if (is_in_wish_list($_SESSION['user_login']['member_id'], $_REQUEST['title'])) {
@@ -21,6 +38,8 @@ if (isset($_SESSION['user_login'])) {
     } else {
         $wash_list = 'outline';
     }
+} else {
+    $wash_list = 'outline';
 }
 
 if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
@@ -30,11 +49,107 @@ if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
         $wash_list = 'outline';
     }
 }
-// if ($sl->rowCount() == 1) {
-//     $_SESSION['login'] = $_POST['username'];
-// } else {
-//     $error = 'invalid username or password';
-// }
+
+if (isset($_REQUEST['submit'])) {
+    if (empty($_REQUEST['datapicker'])) {
+        $error_availability = 'Please select date';
+    } else {
+        $tomorrow = date('Y-m-d');
+        $selected_date = date('Y-m-d', strtotime($_REQUEST['datapicker']));
+        if ($selected_date < $tomorrow) {
+            $error_availability = 'Please select date from tomorrow';
+        } else {
+            $error_availability = '';
+            $total_guest = $_REQUEST['adults'] + $_REQUEST['kids'] + $_REQUEST['infants'];
+            $availability = dispaly_availability($_REQUEST['title'], $selected_date);
+            $lang = get_lanquage($availability[0]['gd_ssn']);
+
+
+            foreach ($lang as $l) {
+                $language .= $l . ' ';
+            }
+
+            if (!empty($availability)) {
+                foreach ($availability as $e) {
+                    $adults = $e['tour_price'] * $_REQUEST['adults'];
+                    $kids = (100 - $e['tour_price_kids']) / 100 * $e['tour_price'] * $_REQUEST['kids'];
+                    $total_price = $adults + $kids;
+                    $count = count_booking($e['tour_id']);
+                    if ($availability[0]['exc_availability'] - $count[0][0] > $total_guest) {
+
+                        $av .= <<<print
+                    <hr>
+        <div class="ui icon message mt-3">
+            <div class="img-fluid w-25 h-25">
+                <img src="{$image[0][0]}" width="100%" height="100%" alt="">
+            </div>
+            <div class="content w-25">
+                <div class="header pl-3">
+                    <p>{$e['exc_title']}</p>
+                </div>
+                <div class="pl-3">
+                    <p >Starting:point: <i class="text-primary"> {$e['tour_starting_point']}</i></p>
+                    <p>Date {$e['tour_date']}</p>
+                    <p>Time: {$e['tour_time_start']}</p>
+                    <p>Booked: {$count[0][0]} out of {$e['exc_availability']}</p>
+                    <p>Guide: {$e['gd_name']} {$e['gd_surname']}</p>
+                    <p>Languages: {$language}</p>
+                </div>
+            </div>
+            <div class="content ">
+                <div class="ui large  transparent left icon">
+                    <div class="m-auto w-50">
+                        <p>Total: <i class="euro icon"></i>{$total_price}</p>
+                        <p><a data-href="tour_details.php?title={$e['exc_id']}&basket='true&date={$selected_date}&adults={$_REQUEST['adults']}&kids={$_REQUEST['kids']}&infants={$_REQUEST['infants']}&starting={$e['tour_starting_point']}"  class="ui violet button procced"> Add to Basket</a></p>
+                        <p class="ui small p-0 m-0"><i class="time outline icon"></i>Duration: {$e['exc_duration']}</p>
+                        <p class="ui small p-0 m-0"><i class="lock icon"></i>Reserved now &amp; Pay Later</p>
+                        <p class="ui small p-0 m-0"><i class="check icon"></i>Free cancelation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+print;
+                    } else {
+                        $av .= <<<print
+                    <div class="ui icon message mt-3">
+                                <div class="img-fluid w-25 h-25">
+                                    <img src="{$image[0]}" width="100%" height="100%" alt="">
+                                </div>
+                                <div class="content w-25">
+                                    <div class="header pl-3">
+                                        <p>{$e['exc_title']}</p>
+                                    </div>
+                                    <div class="pl-3">
+                                        <p>Starting:point: {$e['tour_starting_point']}</p>
+                                        <p>Date {$e['tour_date']}</p>
+                                        <p>Time: {$e['tour_time_start']}</p>
+                                        <p>Booked: {$count} out of {{$e['exc_availability']}</p>
+                                        <p>Guide: {$e['gd_name']} {$e['gd_surname']}</p>
+                                        <p>Languages: {$language}</p>
+                                    </div>
+                                </div>
+                                <div class="content ">
+                                    <div class="ui large  transparent left icon">
+                                        <div class="m-auto w-50">
+                                            <p>Total: <i class="euro icon"></i>{$total_price}</p>
+                                            <p class="ui button grey">Not available</>
+                                            <p class="ui small p-0 m-0"><i class="time outline icon"></i>Duration: {$e['exc_duration']}</p>
+                                            <p class="ui small p-0 m-0"><i class="lock icon"></i>Reserved now &amp; Pay Later</p>
+                                            <p class="ui small p-0 m-0"><i class="check icon"></i>Free cancelation</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+print;
+                    }
+                }
+            } else {
+                $av = "<p class=\"display-3\">This Excursion is not available for this date </p><p class=\"display-5 text-primary\">Pleas modify your Date and search again</p>";
+            }
+        }
+    }
+}
+
 
 ?>
 
@@ -128,14 +243,14 @@ if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
         <div class="p-2 m-2">
             <div class="row">
                 <div class="col">
-                    <div class="container-fluid  bg-light">
+                    <div class="container-fluid  bg-light pb-3 pt-3">
                         <form action="tour_details.php" method="GET">
                             <p class="h2"> Price From: <i class="ui euro icon"></i><?php echo $tour[0]['tour_price'] ?></p>
                             <p class="h4">Starting point: <?php echo $tour[0]['tour_starting_point'] ?></p>
                             <div class="ui">
                                 <label for="datepicker"> Selectet Day</label>
                                 <div class="ui right icon w-100">
-                                    <input id="datepicker" type="text" name="datapicker" class="form-control text-form-control" readonly />
+                                    <input id="datepicker" type="text" name="datapicker" class="form-control text-form-control" readonly require />
                                 </div>
                             </div>
                             <div class="ui">
@@ -156,7 +271,8 @@ if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
                                     <option selected value="0">0</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
-                                    <option disabled value="3">3</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
                                 </select>
 
                             </div>
@@ -174,6 +290,7 @@ if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
                             </script>
                             <input type="hidden" name="title" value="<?php echo $_REQUEST['title'] ?>">
                             <input class="mt-3 w-100 btn input bg-primary p-2 text-white" type="submit" value="Check Availability" name="submit">
+                            <p class="text-danger"><?php echo $error_availability ?></p>
                         </form>
                     </div>
                 </div>
@@ -210,7 +327,7 @@ if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
                         foreach ($review as $e) {
                             $date = date('d/M/Y', strtotime($e['review_date']));
                             if ($e['review_comment'] == null) {
-                                $comment = 'Nothing post';
+                                $comment = '...';
                             } else {
                                 $comment = $e['review_comment'];
                             }
@@ -275,9 +392,14 @@ print;
                 </div>
             </div>
         </div>
-
     </div>
 
+    <div class="container">
+        <?php
+        echo $av;
+        ?>
+
+    </div>
     <div class="container-fluid mt-5 bg-light">
         <div class="p-2 m-2">
             <div class="row">
@@ -328,7 +450,7 @@ print;
         $('.ui.rating').rating('disable')
     </script>
     </div>
-    <div style="height: 100vh"></div>
+    <div style="height: 10vh"></div>
     <script src="../script.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>

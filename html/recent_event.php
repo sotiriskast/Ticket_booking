@@ -17,7 +17,7 @@
                         <a href="tour_details.php?title={$e[6]}" style="display: block">
                         <div class="ui  image ">
                             <div class="ui pink ribbon label z-index-1000 mt-1">
-                                Recent
+                            Upcoming
                             </div>
                             <div class="ui card">
                                 <div class="content"></div>

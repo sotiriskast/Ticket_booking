@@ -41,9 +41,9 @@ function fix_nav_bar() {
 
 
 $(document).ready(function () {
-   
+
     //display the modal form 
-    
+
     $('.logout').click(function () {
         var logout = $.trim($('.logout').text());
 
@@ -57,10 +57,24 @@ $(document).ready(function () {
         var logout = $.trim($('.logout').text());
 
         if (logout == "Logout") {
-            var href = 'basket.php';
+            var href = 'favorite.php';
             window.location = href;
         } else {
             $('.logout').click();
+            return false;
+        }
+    });
+ 
+    $('.procced').click(function () {
+        var logout = $.trim($('.logout').text());
+
+        if (logout == "Logout") {
+            var href = $('.procced').attr("data-href");
+            window.location = href;
+        } else {
+            $('.logout').click();
+            return false;
+    
         }
     });
     $('.basket').click(function () {
@@ -71,6 +85,7 @@ $(document).ready(function () {
             window.location = href;
         } else {
             $('.logout').click();
+            return false;
         }
     });
     $('.wish_list').click(function () {
@@ -81,6 +96,7 @@ $(document).ready(function () {
             window.location = href;
         } else {
             $('.logout').click();
+            return false;
         }
     });
     //valid email
