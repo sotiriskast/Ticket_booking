@@ -28,8 +28,6 @@
                     <i class="cart arrow down icon"></i>
                     Basket
                     <?php echo $label_badget ?>
-                  
-                   
                 </a>
             </div>
             <a class="nav-link favorite" href="wish_list.php">

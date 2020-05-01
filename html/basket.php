@@ -1,29 +1,31 @@
 <?php
 require_once('function.php');
 session_start();
-
+var_dump($_REQUEST['date']);
 if (isset($_REQUEST['remove'])) {
+
 
     $arr = json_decode($_COOKIE['basket']);
     foreach ($arr as $e) {
-        if (!($e[0] == $_REQUEST['title'] && $e[1] == $_REQUEST['date'] && $e[2] == $_REQUEST['starting'])) {
+
+        if (!($e[0] == $_REQUEST['title'] && $e[1] == $_REQUEST['date'] && $e[2] == $_REQUEST['starting']) && $e[6] == $_SESSION['user_login']['member_id']) {
             $arr1[] = $e;
         }
     }
     unset($arr);
     $cookie_name = 'basket';
-    $cookie_value = json_decode($_COOKIE['basket']);
+
     $cookie_value =  $arr1;
     setcookie($cookie_name, json_encode($cookie_value), time() + (86400) * 60, "/"); //valid for two moths 
-    header('Location: basket.php');
-    die();
 }
 
 $arr = json_decode($_COOKIE['basket']);
 
 foreach ($arr as $a) {
-    $img = get_images($a[0]);
-    $availability[] = array('ave' => dispaly_availability($a[0], $a[1], $a[2]), 'adls' => $a[3], 'kids' => $a[4], 'infants' => $a[5], 'img' => $img[0][0]);
+    if ($a[6] == $_SESSION['user_login']['member_id']) {
+        $img = get_images($a[0]);
+        $availability[] = array('ave' => dispaly_availability($a[0], $a[1], $a[2]), 'adls' => $a[3], 'kids' => $a[4], 'infants' => $a[5], 'img' => $img[0][0]);
+    }
 }
 
 if (!empty($availability)) {
@@ -34,7 +36,7 @@ if (!empty($availability)) {
         $kids = (100 - $e['ave'][0]['tour_price_kids']) / 100 * $e['ave'][0]['tour_price'] * $e['adls'];
         $price = $adults + $kids;
         $total_price += $price;
-        $count = count_booking($e['ave'][0]['tour_id']);
+        $count = count_booking($e['ave'][0]['tour_id'], $e['ave'][0]['tour_date']);
         if ($e['ave'][0]['exc_availability'] - $count[0][0] > $total_guest) {
 
             $av .= <<<print
@@ -59,16 +61,43 @@ if (!empty($availability)) {
 <div class="ui large  transparent left icon">
   <div class="m-auto w-50">
       <p>Total: <i class="euro icon"></i>{$price}</p>
-      <p><a href="basket.php?remove=true&title={$e['ave'][0]['exc_id']}&date={$a[1]}&total_guest={$total_guest}&starting={$e['ave'][0]['tour_starting_point']}"  class="ui pink button">Remove </a></p>
+      <p><a href="basket.php?remove=true&title={$e['ave'][0]['exc_id']}&date={$e['ave'][0]['tour_date']}&total_guest={$total_guest}&starting={$e['ave'][0]['tour_starting_point']}"  class="ui pink button">Remove </a></p>
       <p class="ui small p-0 m-0"><i class="time outline icon"></i>Duration: {$e['ave'][0]['exc_duration']}</p>
+      <p class="ui small p-0 m-0"><i class="time outline icon"></i>Adults: {$e['adls']}, Kids: {$e['kids']}, Infants: {$e['infants']}</p>
 </div>
 </div>
 </div>
 </div>
 print;
+
+            if (isset($_REQUEST['book'])) {
+                $resv_id = random_resv_id();
+                insert_new_reservation($resv_id, $_SESSION['user_login']['member_id'], $e['ave'][0]['exc_id'], $e['ave'][0]['tour_date'],  $price);
+                insert_new_participant($resv_id, 'Adults', $e['adls']);
+                insert_new_participant($resv_id, 'Kids', $e['kids']);
+                insert_new_participant($resv_id, 'Infants', $e['infants']);
+                update_count_booking($e['ave'][0]['exc_id']);
+            }
         }
     }
 }
+if (isset($_REQUEST['book'])) {
+    $arr = json_decode($_COOKIE['basket']);
+    foreach ($arr as $e) {
+
+        if ($e[6] != $_SESSION['user_login']['member_id']) {
+            $arr1[] = $e;
+        }
+    }
+    unset($arr);
+    $cookie_name = 'basket';
+    $cookie_value =  $arr1;
+    setcookie($cookie_name, json_encode($cookie_value), time() + (86400) * 60, "/"); //valid for two moths 
+    header('Location: basket.php');
+    die();
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -141,7 +170,7 @@ print;
                             </tr>
                         </tbody>
                     </table>
-                    <a class="ui button violet w-100 mt-2">BOOK</a>
+                    <a href="basket.php?book=true" class="ui button violet w-100 mt-2">BOOK</a>
                 </div>
             </div>
         <?php else : ?>
@@ -156,6 +185,13 @@ print;
         <?php endif; ?>
         <hr>
     </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
 </body>
 
 </html>

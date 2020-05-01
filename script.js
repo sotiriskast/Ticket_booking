@@ -64,7 +64,7 @@ $(document).ready(function () {
             return false;
         }
     });
- 
+
     $('.procced').click(function () {
         var logout = $.trim($('.logout').text());
 
@@ -74,7 +74,7 @@ $(document).ready(function () {
         } else {
             $('.logout').click();
             return false;
-    
+
         }
     });
     $('.basket').click(function () {
@@ -98,6 +98,15 @@ $(document).ready(function () {
             $('.logout').click();
             return false;
         }
+    });
+
+    $('.cancel').click(function () {
+        var href=$('.cancel').attr('data-href');
+       if(confirm('Are you sure that you want to cancel this booking??')){
+        window.location=href;
+       }
+        
+
     });
     //valid email
 

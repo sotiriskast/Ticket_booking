@@ -3,27 +3,34 @@
 session_start();
 require_once 'function.php';
 
-
-
-
 if (isset($_REQUEST['basket'])) {
-
+//add in cookied the slected box before check out
     $cookie_name = 'basket';
     $cookie_value = json_decode($_COOKIE['basket']);
-    $cookie_value[] = array($_REQUEST['title'], $_REQUEST['date'], $_REQUEST['starting'], $_REQUEST['adults'], $_REQUEST['kids'], $_REQUEST['infants']);
+    $cookie_value[] = array($_REQUEST['title'], $_REQUEST['date'], $_REQUEST['starting'], $_REQUEST['adults'], $_REQUEST['kids'], $_REQUEST['infants'], $_SESSION['user_login']['member_id']);
     setcookie($cookie_name, json_encode($cookie_value), time() + (86400) * 60, "/"); //valid for two moths 
     $label_badget = '  <p class="ui red circular label">N</p>';
 }
 
 
 if (isset($_REQUEST['title'])) {
+    //tracking user where visited and added to cookies
+    $cookie_value = json_decode($_COOKIE['browsing']);
+    $bool = false;
+    foreach ($cookie_value as $e) {
 
-    $cookie_name = 'title-' . $_REQUEST['title'];
-    $cookie_value = $_REQUEST['title'];
-    setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
+        if ($e[0] == ($_REQUEST['title'])) {
+            $bool = true;
+           
+        }
+    }
+    if ($bool != true) {
+        $cookie_name = 'browsing';
+        $cookie_value[] = array($_REQUEST['title']);
+        setcookie($cookie_name, json_encode($cookie_value), time() + (86400) * 60, "/"); //valid for two moths 
 
+    }
     $image = get_images($_REQUEST['title']);
-
     $excursion = get_single_excursion($_REQUEST['title']);
     $tour = get_tour_excursion($_REQUEST['title']);
     $review = get_review($_REQUEST['title']);
@@ -33,6 +40,7 @@ if (isset($_REQUEST['title'])) {
     die();
 }
 if (isset($_SESSION['user_login'])) {
+    //add or remove from wish list 
     if (is_in_wish_list($_SESSION['user_login']['member_id'], $_REQUEST['title'])) {
         $wash_list = '';
     } else {
@@ -41,15 +49,13 @@ if (isset($_SESSION['user_login'])) {
 } else {
     $wash_list = 'outline';
 }
-
 if (isset($_REQUEST['list']) && $_REQUEST['list'] == 'yes') {
-    if (insert_wash_list($_SESSION['user_login']['member_id'], $_REQUEST['title'])) {
+    if (insert_wish_list($_SESSION['user_login']['member_id'], $_REQUEST['title'])) {
         $wash_list = '';
     } else {
         $wash_list = 'outline';
     }
 }
-
 if (isset($_REQUEST['submit'])) {
     if (empty($_REQUEST['datapicker'])) {
         $error_availability = 'Please select date';
@@ -64,17 +70,18 @@ if (isset($_REQUEST['submit'])) {
             $availability = dispaly_availability($_REQUEST['title'], $selected_date);
             $lang = get_lanquage($availability[0]['gd_ssn']);
 
-
             foreach ($lang as $l) {
                 $language .= $l . ' ';
             }
-
             if (!empty($availability)) {
                 foreach ($availability as $e) {
                     $adults = $e['tour_price'] * $_REQUEST['adults'];
                     $kids = (100 - $e['tour_price_kids']) / 100 * $e['tour_price'] * $_REQUEST['kids'];
                     $total_price = $adults + $kids;
-                    $count = count_booking($e['tour_id']);
+                    $count = count_booking($e['tour_id'], $selected_date);
+                    if ($count == null) {
+                        $count = 0;
+                    }
                     if ($availability[0]['exc_availability'] - $count[0][0] > $total_guest) {
 
                         $av .= <<<print
@@ -111,7 +118,7 @@ if (isset($_REQUEST['submit'])) {
 print;
                     } else {
                         $av .= <<<print
-                    <div class="ui icon message mt-3">
+                            <div class="ui icon message mt-3">
                                 <div class="img-fluid w-25 h-25">
                                     <img src="{$image[0]}" width="100%" height="100%" alt="">
                                 </div>

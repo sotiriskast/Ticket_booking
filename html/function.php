@@ -91,7 +91,33 @@ function is_telephone_exist($tel)
 }
 
 
+function random_resv_id()
+{
+  global $db;
+  $c = range('A', 'Z');
+  $s = range('a', 'z');
+  $n = range('0', '9');
+  $mrg = array_merge($c, $n, $s);
+  shuffle($mrg);
+  shuffle($mrg);
+  for ($i = 0; $i < 8; $i++) {
+    $id .= $mrg[$i];
+  }
 
+  $query = 'SELECT resv_id FROM Reservation WHERE resv_id=:id';
+  $mb_id = $db->prepare($query);
+  $mb_id->bindValue(':id', $id);
+  $mb_id->execute();
+  $chk = $mb_id->fetch();
+  $mb_id->closeCursor();
+
+  if ($chk != null) {
+    //use recursive if is exist to call again the method
+    return random_resv_id();
+  } else {
+    return $id;
+  }
+}
 
 function random_member_id()
 {
@@ -330,17 +356,16 @@ function dispaly_availability($exc_id, $date, $starting_point = null)
 {
   global $db;
 
-  if($starting_point==null){
+  if ($starting_point == null) {
     $query = 'SELECT  DISTINCT tour_starting_point  FROM Tour_excursion';
     $exc = $db->prepare($query);
     $exc->execute();
     $availabiltiy = $exc->fetchAll();
     $exc->closeCursor();
-    foreach($availabiltiy as $e){
-     $starting_point.=$e[0].'|'; 
+    foreach ($availabiltiy as $e) {
+      $starting_point .= $e[0] . '|';
     }
-    $starting_point=substr($starting_point,0,-1);
- 
+    $starting_point = substr($starting_point, 0, -1);
   }
 
   $query = 'SELECT E.exc_id,E.exc_title,E.exc_duration,E.exc_availability,
@@ -423,6 +448,16 @@ function get_all_excursion($sort = null)
   }
   $rev->closeCursor();
   for ($i = 0; $i < count($excursion); $i++) {
+    //position 0 (price)
+    //position 1 (date)
+    //position 2 (starting point)
+    //position 3 (time)
+    //position 4 (image)
+    //position 5 (title)
+    //position 6 (description)
+    //position 7 (rating)
+    //position 8 (Duration)
+    //position 9 Excursion ID
     $arr[$i] = array($tour_date[$i]['tour_price'], $tour_date[$i]['tour_date'], $tour[$i]['tour_starting_point'], $tour[$i]['tour_time_start'], $images[$i]['img_name'], $excursion[$i]['exc_title'], $excursion[$i]['exc_description'], round($review[$i][0], 0), $excursion[$i]['exc_duration'], $excursion[$i]['exc_id']);
   }
 
@@ -529,7 +564,31 @@ function get_review($exc_id)
   return $tour_date;
 }
 
+function insert_review($member_id,$exc_id,$rating,$comment)
+{
 
+
+  global $db;
+  $query = 'INSERT INTO Review(member_id,exc_id,review,review_comment)
+            VALUES  (:MID,:EID,:REV,:COM)';
+
+  $rev = $db->prepare($query);
+  $rev->bindValue(':MID', $member_id);
+  $rev->bindValue(':EID', $exc_id);
+  $rev->bindValue(':REV', $rating);
+  $rev->bindValue(':COM', $comment);
+
+
+  if($rev->execute()){
+    $rev->closeCursor();
+    return true;  
+  }else{
+    $rev->closeCursor();
+  return false;
+  }
+
+  
+}
 //GET ALL WISH LIST EXCURSION
 //WISH LIST
 //============================
@@ -554,7 +613,7 @@ function is_in_wish_list($member, $tour)
 }
 
 //insert into wash list
-function insert_wash_list($member, $tour)
+function insert_wish_list($member, $tour)
 
 {
   global $db;
@@ -676,16 +735,210 @@ function get_lanquage($gd_ssn)
   $lan->closeCursor();
   return $lang;
 }
-function count_booking($tour_id)
+function count_booking($tour_id, $date)
 {
   global $db;
-  $query = 'SELECT count(*)
+  $query = 'SELECT sum(par_qnt)
             FROM 1517_TOURS_AND_EXCURSION.Reservation
-            where tour_id=?';
+            JOIN Participant USING(resv_id)
+            where tour_id=? AND resv_status="Confirm" AND resv_date=?';
   $lan = $db->prepare($query);
   $lan->bindValue(1, $tour_id);
+  $lan->bindValue(2, $date);
   $lan->execute();
   $total = $lan->fetchAll();
   $lan->closeCursor();
   return $total;
+}
+
+
+function insert_new_reservation($resv_id, $member_id, $tour_id, $date, $price)
+{
+
+  global $db;
+  $query = 'INSERT INTO Reservation()
+            VALUES(:id,:details,:status,:member_id,:tour_id,:date,:price)';
+  $lan = $db->prepare($query);
+  $lan->bindValue(':id', $resv_id);
+  $lan->bindValue(':details', null);
+  $lan->bindValue(':status', 'Confirm');
+  $lan->bindValue(':member_id', $member_id);
+  $lan->bindValue('tour_id', $tour_id);
+  $lan->bindValue(':date', $date);
+  $lan->bindValue(':price', $price);
+  if ($lan->execute()) {
+    $lan->closeCursor();
+    return true;
+  } else {
+    $lan->closeCursor();
+    return false;
+  }
+}
+
+function update_count_booking($exc_id, $count = 'PLUS')
+{
+  global $db;
+  $query = 'SELECT exc_count_booking 
+            FROM Excursion
+            WHERE exc_id=:id';
+  $lan = $db->prepare($query);
+  $lan->bindValue(':id', $exc_id);
+  $lan->execute();
+  $cnt = $lan->fetch();
+  $lan->closeCursor();
+
+  if ($count == 'PLUS') {
+    $cnt++;
+  } elseif ($count == 'MINUS') {
+    $cnt--;
+  }
+  $query = 'UPDATE Excursion
+            SET exc_count_booking =:count
+            WHERE exc_id=:id';
+  $lan = $db->prepare($query);
+  $lan->bindValue(':id', $exc_id);
+  $lan->bindValue(':count', $cnt);
+  if ($lan->execute()) {
+    $lan->closeCursor();
+    return true;
+  } else {
+    $lan->closeCursor();
+    return false;
+  }
+}
+function cancel_reservation($resv_id)
+{
+  global $db;
+  $query = 'UPDATE  Reservation 
+            SET resv_status=:cnx
+            WHERE resv_id=:id';
+  $lan = $db->prepare($query);
+  $lan->bindValue(':id', $resv_id);
+  $lan->bindValue(':cnx', 'Cancelled');
+  var_dump($lan->execute(), $resv_id);
+  if ($lan->execute()) {
+
+    $lan->closeCursor();
+    return true;
+  } else {
+    $lan->closeCursor();
+    return false;
+  }
+}
+
+function insert_new_participant($resv_id, $person, $qnt)
+{
+
+  global $db;
+  $query = 'INSERT INTO Participant()
+            VALUES (:id,:person,:qnt)';
+  $lan = $db->prepare($query);
+  $lan->bindValue(':id', $resv_id);
+  $lan->bindValue(':person', $person);
+  $lan->bindValue(':qnt', $qnt);
+  if ($lan->execute()) {
+    $lan->closeCursor();
+    return true;
+  } else {
+    $lan->closeCursor();
+    return false;
+  }
+}
+function get_member_order($member_id)
+{
+  $date = date('Y-m-d');
+
+  global $db;
+  $query = 'SELECT  M.member_name , M.member_surname ,
+                      R.resv_status,R.resv_id, R.resv_date,R.resv_price,
+                    T.*,
+                    E.exc_title,E.exc_duration 
+            FROM Member M
+            JOIN Reservation R USING(member_id)
+            JOIN Tour_excursion T ON T.tour_id=R.tour_id 
+            JOIN Excursion E ON E.exc_id=T.exc_id 
+            WHERE M.member_id=? AND R.resv_date>=? AND R.resv_status=?';
+  $lan = $db->prepare($query);
+  $lan->bindValue(1, $member_id);
+  $lan->bindValue(2, $date);
+  $lan->bindValue(3, 'Confirm');
+  $lan->execute();
+  $resv = $lan->fetchAll();
+  $lan->closeCursor();
+
+  $query = 'SELECT * 
+          FROM Participant
+          WHERE resv_id=?';
+  $lan = $db->prepare($query);
+  foreach ($resv as $e) {
+    $lan->bindValue(1, $e['resv_id']);
+    $lan->execute();
+    $par[] = $lan->fetchAll();
+  }
+  $lan->closeCursor();
+
+  $query = 'SELECT img_name
+            FROM Excursion_image
+            WHERE exc_id=?
+            LIMIT 1';
+  $lan = $db->prepare($query);
+  foreach ($resv as $e) {
+    $lan->bindValue(1, $e['exc_id']);
+    $lan->execute();
+    $img[] = $lan->fetch();
+  }
+  $lan->closeCursor();
+  for ($i = 0; $i < count($resv); $i++) {
+    $arr[] = array('resv' => $resv[$i], 'par' => $par[$i], 'img' => $img[$i]);
+  }
+
+  return $arr;
+}
+
+function get_member_history($member_id)
+{
+  global $db;
+  $query = 'SELECT  M.member_name , M.member_surname ,
+                      R.resv_status,R.resv_id, R.resv_date,R.resv_price,
+                    T.*,
+                    E.exc_title,E.exc_duration 
+            FROM Member M
+            JOIN Reservation R USING(member_id)
+            JOIN Tour_excursion T ON T.tour_id=R.tour_id 
+            JOIN Excursion E ON E.exc_id=T.exc_id 
+            WHERE M.member_id=?
+            ORDER BY R.resv_status DESC';
+  $lan = $db->prepare($query);
+  $lan->bindValue(1, $member_id);
+  $lan->execute();
+  $resv = $lan->fetchAll();
+  $lan->closeCursor();
+
+  $query = 'SELECT * 
+          FROM Participant
+          WHERE resv_id=?';
+  $lan = $db->prepare($query);
+  foreach ($resv as $e) {
+    $lan->bindValue(1, $e['resv_id']);
+    $lan->execute();
+    $par[] = $lan->fetchAll();
+  }
+  $lan->closeCursor();
+
+  $query = 'SELECT img_name
+            FROM Excursion_image
+            WHERE exc_id=?
+            LIMIT 1';
+  $lan = $db->prepare($query);
+  foreach ($resv as $e) {
+    $lan->bindValue(1, $e['exc_id']);
+    $lan->execute();
+    $img[] = $lan->fetch();
+  }
+  $lan->closeCursor();
+  for ($i = 0; $i < count($resv); $i++) {
+    $arr[] = array('resv' => $resv[$i], 'par' => $par[$i], 'img' => $img[$i]);
+  }
+
+  return $arr;
 }

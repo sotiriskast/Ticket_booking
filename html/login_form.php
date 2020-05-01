@@ -1,12 +1,20 @@
 <?php
-$wish_heart_nav='outline';
+$wish_heart_nav = 'outline';
 if (isset($_SESSION['user_login'])) {
     $login_button = 'Logout';
     $user_account = <<<btn
-    <a class="nav-link " id="user_account" href="#">
+    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown user_account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <i class="cart arrow down icon"></i>
-    {$_SESSION['user_login']['member_name']} Account's
-    </a>
+    {$_SESSION['user_login']['member_name']} Account's    
+  </a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+    <a class="dropdown-item" href="my_order.php">My Order</a>
+    <a class="dropdown-item" href="history.php">History</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="leave_review.php">Leave review</a>
+</div>
+</li>
 btn;
 } else {
     $login_button = 'Log in';
@@ -39,11 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 setcookie($cookie_name, $cookie_value, time() + (86400) * 60, "/"); //valid for two moths
 
                 $user_account = <<<btn
-                <a class="nav-link " id="user_account" href="#">
+                <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown user_account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="cart arrow down icon"></i>
-              {$_SESSION['user_login']['member_name']} Account's
+                {$_SESSION['user_login']['member_name']} Account's    
               </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="my_order.php">My Order</a>
+            <a class="dropdown-item" href="history.php">History</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="leave_review.php">Leave review</a>
+            </div>
+            </li>
+
 btn;
+
+
+
+
                 // echo json_encode(array(
                 //     "success" => $result
 

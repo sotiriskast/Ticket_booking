@@ -118,13 +118,16 @@ print;
         <?php require_once('popular_event.php') ?>
         <hr>
         <div style="height: 3vh;"></div>
-        <?php if (isset($_COOKIE)) {
-            foreach ($_COOKIE as $e) {
-                if (is_numeric($e)) {
-                    $hist[] = browse_event($e);
-                }
+        <?php 
+        
+        $browse=json_decode($_COOKIE['browsing']);
+        if (isset($browse)) {
+            foreach ($browse as $e) {
+                $hist[] = browse_event($e[0]);
             }
-        } ?>
+        }
+        ?>
+        
         <?php if ($hist != null) : ?>
             <section class="ui container w-100 p-5" style="background-color: rgb(248, 245,250)">
                 <p class="display-3">Your Browsing History: </p>
@@ -185,8 +188,15 @@ print;
         <?php endif; ?>
     </div>
     <script>
-           $('.ui.rating').rating('disable')
+        $('.ui.rating').rating('disable')
     </script>
+    </div>
+
+    <script src="../script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
 </body>
 
 </html>
