@@ -2,13 +2,20 @@
 require_once('function.php');
 session_start();
 
-if(isset($_REQUEST['cancel'])){
-cancel_reservation($_REQUEST['resv_id']);
-update_count_booking($_REQUEST['exc_id'],'MINUS');
+
+if (isset($_REQUEST['cancel'])) {
+    cancel_reservation($_REQUEST['resv_id']);
+    update_count_booking($_REQUEST['exc_id'], 'MINUS');
 }
 
 
 $order = get_member_order($_SESSION['user_login']['member_id']);
+foreach ($order as $e) {
+    if ($e['resv']['resv_id'] == $_REQUEST['resv_id']) {
+        $print = $e;
+    }
+}
+
 if (!empty($order)) {
     foreach ($order as $e) {
         $total_guest = $e['par'][0][2] +  $e['par'][1][2] +  $e['par'][2][2];
@@ -33,7 +40,8 @@ if (!empty($order)) {
 <div class="ui large  transparent left icon">
   <div class="m-auto w-50">
       <p>Total: <i class="euro icon"></i>{$price}</p>
-      <p><a data-href="my_order.php?cancel=true&resv_id={$e['resv']['resv_id']}&exc_id={$e['resv']['exc_id']}" class="ui red button cancel">Cancel </a></p>
+      <p><a target="_blank" href="my_order.php?get_ticket=true&resv_id={$e['resv']['resv_id']}&exc_id={$e['resv']['exc_id']}" class="ui blue button w-100">Get Ticket </a></p>
+      <p><a data-href="my_order.php?cancel=true&resv_id={$e['resv']['resv_id']}&exc_id={$e['resv']['exc_id']}" class="ui red button cancel w-100">Cancel </a></p>
       <p class="ui small p-0 m-0"><i class="time outline icon"></i>Duration: {$e['resv']['exc_duration']}</p>
       <p class="ui small p-0 m-0">Adults: {$e['par'][0][2]}, Kids: {$e['par'][1][2]}, Infants: {$e['par'][2][2]}</p>
 </div>
@@ -43,6 +51,103 @@ if (!empty($order)) {
 print;
     }
 }
+if (isset($_REQUEST['get_ticket'])) {
+    require('../TCPDF/tcpdf.php');
+
+
+    // create new PDF document
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    // set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    // $pdf->SetAuthor('Nicola Asuni');
+    // $pdf->SetTitle('TCPDF Example 001');
+    // $pdf->SetSubject('TCPDF Tutorial');
+    // $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+
+    // set default header data
+    $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING, array(0, 64, 255), array(0, 64, 128));
+    $pdf->setFooterData(array(0, 64, 0), array(0, 64, 128));
+
+    // set header and footer fonts
+    $pdf->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+    $pdf->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+    // set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // set margins
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+    // set auto page breaks
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+    // set image scale factor
+    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+    // set some language-dependent strings (optional)
+    if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
+        require_once(dirname(__FILE__) . '/lang/eng.php');
+        $pdf->setLanguageArray($l);
+    }
+
+    // ---------------------------------------------------------
+
+    // set default font subsetting mode
+    $pdf->setFontSubsetting(true);
+
+    // Set font
+    // dejavusans is a UTF-8 Unicode font, if you only need to
+    // print standard ASCII chars, you can use core fonts like
+    // helvetica or times to reduce file size.
+    $pdf->SetFont('dejavusans', '', 14, '', true);
+
+    // Add a page
+    // This method has several options, check the source code documentation for more information.
+    $pdf->AddPage();
+
+    // set text shadow effect
+    $pdf->setTextShadow(array('enabled' => true, 'depth_w' => 0.2, 'depth_h' => 0.1, 'color' => array(196, 196, 196), 'opacity' => 1, 'blend_mode' => 'Normal'));
+
+    // include 2D barcode class (search for installation path)
+    $matr = 'https://barcode.tec-it.com/barcode.ashx?data=http%3A%2F%2Flocalhost%3A3000%2Fhtml%2Fmy_order.php&code=DataMatrix&multiplebarcodes=true&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&dmsize=Default';
+    $html = <<<EOD
+<div><img src="{$print['img'][0]}"></div>
+<p >Full Name: <i>{$print['resv']['member_name']} {$print['resv']['member_name']}</i></p>
+<p>Booking Date: <i style="color:blue">{$print['resv']['resv_date']}</i> Time: <i style="color:blue">{$print['resv']['tour_time_start']}</i></p>
+
+<ul>
+<li>Adults: {$print['par'][0][2]}</li>
+<li>Kids: {$print['par'][1][2]}</li>
+<li>Infants {$print['par'][2][2]}</li>
+</ul>
+<p>Starting Point: <i style="color:blue">{$print['resv']['tour_starting_point']}</i> Duration: <i style="color:blue">{$print['resv']['exc_duration']}</i></p>
+<p>{$bar}</p>
+<p>Total Price: <i style="color:blue">{$print['resv']['resv_price']} EUR</i></p>
+<div style="text-align:center">
+<img src="{$matr}" alt="" srcset="">
+</div>
+
+
+EOD;
+
+    // Print text using writeHTMLCell()
+    $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+    // ---------------------------------------------------------
+
+    // Close and output PDF document
+    // This method has several options, check the source code documentation for more information.
+    $pdf->Output('example_001.pdf', 'I');
+
+    //============================================================+
+    // END OF FILE
+    //============================================================+
+
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -82,6 +187,7 @@ print;
         }
     </style>
 </head>
+
 <body>
     <?php
     require_once 'login_form.php';
@@ -89,11 +195,13 @@ print;
     ?>
     <div style="height: 10vh"></div>
     <div class="container">
-    <p class="display-3 ">Your Order</p>    
-    <?php echo $av ?>
+        <p class="display-3 ">Your Order</p>
+        <?php echo $av ?>
     </div>
 
-<script src="../script.js"></script>
+
+
+    <script src="../script.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
