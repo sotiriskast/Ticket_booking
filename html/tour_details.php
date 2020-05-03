@@ -4,7 +4,7 @@ session_start();
 require_once 'function.php';
 
 if (isset($_REQUEST['basket'])) {
-//add in cookied the slected box before check out
+    //add in cookied the slected box before check out
     $cookie_name = 'basket';
     $cookie_value = json_decode($_COOKIE['basket']);
     $cookie_value[] = array($_REQUEST['title'], $_REQUEST['date'], $_REQUEST['starting'], $_REQUEST['adults'], $_REQUEST['kids'], $_REQUEST['infants'], $_SESSION['user_login']['member_id']);
@@ -21,7 +21,6 @@ if (isset($_REQUEST['title'])) {
 
         if ($e[0] == ($_REQUEST['title'])) {
             $bool = true;
-           
         }
     }
     if ($bool != true) {
@@ -69,7 +68,6 @@ if (isset($_REQUEST['submit'])) {
             $total_guest = $_REQUEST['adults'] + $_REQUEST['kids'] + $_REQUEST['infants'];
             $availability = dispaly_availability($_REQUEST['title'], $selected_date);
             $lang = get_lanquage($availability[0]['gd_ssn']);
-
             foreach ($lang as $l) {
                 $language .= $l . ' ';
             }
@@ -77,6 +75,7 @@ if (isset($_REQUEST['submit'])) {
                 foreach ($availability as $e) {
                     $adults = $e['tour_price'] * $_REQUEST['adults'];
                     $kids = (100 - $e['tour_price_kids']) / 100 * $e['tour_price'] * $_REQUEST['kids'];
+
                     $total_price = $adults + $kids;
                     $count = count_booking($e['tour_id'], $selected_date);
                     if ($count == null) {
@@ -221,7 +220,6 @@ print;
             $('.corona-virus').remove();
         });
     </script>
-
     <div class="ui breadcrumb">
         <a class="section" href="homepage.php">Home</a>
         <i class="right chevron icon divider"></i>
@@ -241,7 +239,7 @@ print;
                     <div class="ui star rating" data-rating="<?php echo round($excursion['average']); ?>" data-max-rating="5"></div><span>( <?php echo round($excursion['average'], 2); ?> ) <a class="btn-link " href="#review"> Total review ( <?php echo round($excursion['total_count'], 0); ?> )</a></span>
                 </div>
                 <div class="col text-right pr-5">
-                    <a class="ui wish_list" style="text-decoration: none" href="tour_details.php?&title=<?php echo $title ?>&list=yes"><i class="ui heart <?php echo $wash_list ?> icon red"></i>Add to Wish list</a>
+                    <a class="ui wish_list" style="text-decoration: none" href="tour_details.php?&title=<?php echo $excursion['exc_id']; ?>&list=yes"><i class="ui heart <?php echo $wash_list ?> icon red"></i>Add to Wish list</a>
                 </div>
             </div>
         </div>
@@ -268,6 +266,7 @@ print;
                                     <option selected value="2">2</option>
                                     <option value="3">3</option>
                                     <option value="4">4</option>
+                                    <option value="5">5</option>
                                 </select>
                             </div>
 
@@ -458,6 +457,7 @@ print;
     </script>
     </div>
     <div style="height: 10vh"></div>
+    <?php include_once('footer.html') ?>
     <script src="../script.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
