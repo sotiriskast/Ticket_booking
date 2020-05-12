@@ -7,22 +7,22 @@ window.onscroll = function () {
 
 function countable_number() {
     if (window.scrollY > 3000) {
-        var amount = 5000;
+
         $({
-            countNum: 0 //starting point of existing cache
+            countNum: 0
         }).animate({
-            countNum: amount //ending
+            countNum: 4000
         }, {
-            duration: 600,
+            duration: 8000,
             easing: 'linear',
             step: function () {
-                $('.customer').html(Math.ceil(this.countNum));
+                $('.customer').html(Math.floor(this.countNum) + "+");
             },
             complete: function () {
-                $('.customer').html(amount);
+                $('.customer').html(this.countNum + "+");
                 //alert('finished');
             }
-        });
+        })
 
     }
 }
@@ -37,11 +37,9 @@ function fix_nav_bar() {
 
     }
 }
-
-
-
 $(document).ready(function () {
-
+    $('#passwd').focus();
+    $('#first_name').focus();
     //display the modal form 
 
     $('.logout').click(function () {
@@ -101,11 +99,11 @@ $(document).ready(function () {
     });
 
     $('.cancel').click(function () {
-        var href=$('.cancel').attr('data-href');
-       if(confirm('Are you sure that you want to cancel this booking??')){
-        window.location=href;
-       }
-        
+        var href = $('.cancel').attr('data-href');
+        if (confirm('Are you sure that you want to cancel this booking??')) {
+            window.location = href;
+        }
+
 
     });
     //valid email

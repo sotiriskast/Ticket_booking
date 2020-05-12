@@ -373,10 +373,10 @@ function dispaly_availability($exc_id, $date, $starting_point = null)
                    D.tour_date,D.tour_price,D.tour_price_kids,
                    S.gd_ssn, S.gd_name,S.gd_surname
             FROM   Tour_excursion T
-            JOIN Guide_tour G USING(tour_id)
+            LEFT JOIN Guide_tour G USING(tour_id)
             JOIN Tour_date D USING(tour_id)
             JOIN Excursion E USING(exc_id)
-            JOIN Guide_staff S ON G.gd_ssn=S.gd_ssn
+            LEFT JOIN Guide_staff S ON G.gd_ssn=S.gd_ssn
             WHERE  T.exc_id =? 
             AND tour_date=? AND tour_starting_point REGEXP ?';
 
@@ -508,6 +508,19 @@ function get_single_excursion($exc_id)
 
   return $excursion;
 }
+function get_all_tour_excursion_id($id)
+{
+  global $db;
+  $query = 'SELECT *
+            From Tour_excursion
+            WHERE exc_id=?';
+  $exc = $db->prepare($query);
+  $exc->bindValue(1, $id);
+  $exc->execute();
+  $tour = $exc->fetchAll();
+  $exc->closeCursor();
+  return $tour;
+}
 function get_tour_excursion($exc_id)
 {
   global $db;
@@ -564,7 +577,7 @@ function get_review($exc_id)
   return $tour_date;
 }
 
-function insert_review($member_id,$exc_id,$rating,$comment)
+function insert_review($member_id, $exc_id, $rating, $comment)
 {
 
 
@@ -579,15 +592,28 @@ function insert_review($member_id,$exc_id,$rating,$comment)
   $rev->bindValue(':COM', $comment);
 
 
-  if($rev->execute()){
+  if ($rev->execute()) {
     $rev->closeCursor();
-    return true;  
-  }else{
+    return true;
+  } else {
     $rev->closeCursor();
-  return false;
+    return false;
   }
+}
 
-  
+function insert_tour_date($id, $date, $price, $kids_p)
+{
+  global $db;
+  $query = 'INSERT INTO Tour_date()
+            VALUES (?,?,?,?)';
+
+  $rev = $db->prepare($query);
+  $rev->bindValue(1, $id);
+  $rev->bindValue(2, $date);
+  $rev->bindValue(3, $price);
+  $rev->bindValue(4, $kids_p);
+  $rev->execute();
+  $rev->closeCursor();
 }
 //GET ALL WISH LIST EXCURSION
 //WISH LIST
