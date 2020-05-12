@@ -196,7 +196,18 @@ EOD;
     <div style="height: 10vh"></div>
     <div class="container">
         <p class="display-3 ">Your Order</p>
-        <?php echo $av ?>
+        <?php if (!empty($av)) : ?>
+            <?php echo $av ?>
+        <?php else : ?>
+            <section class="ui overview bg-light p-5">
+                <div class="ui content-overview  p-5 m-auto text-center">
+                    <h1>Order</h1>
+                    <p>Nothing book yet</p>
+                    <p><a class="btn-link" href="tour_list.php">Click here to go to Tour List page</a></p>
+                    <p></p>
+                </div>
+            </section>
+        <?php endif; ?>
     </div>
 
 

@@ -2,24 +2,25 @@
 require_once('function.php');
 session_start();
 if (isset($_REQUEST['remove'])) {
-
-
     $arr = json_decode($_COOKIE['basket']);
+    $i = 0;
     foreach ($arr as $e) {
 
-        if (!($e[0] == $_REQUEST['title'] && $e[1] == $_REQUEST['date'] && $e[2] == $_REQUEST['starting']) && $e[6] == $_SESSION['user_login']['member_id']) {
+        if (!($e[0] == $_REQUEST['title'] && $e[1] == $_REQUEST['date'] && $e[2] == $_REQUEST['starting'] && $e[6] == $_SESSION['user_login']['member_id'] && $i == 0)) {
             $arr1[] = $e;
+        } else {
+            $i++;
         }
     }
     unset($arr);
     $cookie_name = 'basket';
-
     $cookie_value =  $arr1;
     setcookie($cookie_name, json_encode($cookie_value), time() + (86400) * 60, "/"); //valid for two moths 
+    header('Location: basket.php');
+    die();
 }
 
 $arr = json_decode($_COOKIE['basket']);
-
 foreach ($arr as $a) {
     if ($a[6] == $_SESSION['user_login']['member_id']) {
         $img = get_images($a[0]);
@@ -27,12 +28,12 @@ foreach ($arr as $a) {
     }
 }
 
+
 if (!empty($availability)) {
     foreach ($availability as $e) {
-
         $total_guest = $e['adls'] +  $e['kids'] +  $e['infants'];
         $adults = $e['ave'][0]['tour_price'] * $e['adls'];
-        $kids = (100 - $e['ave'][0]['tour_price_kids']) / 100 * $e['ave'][0]['tour_price'] * $e['adls'];
+        $kids = (100 - $e['ave'][0]['tour_price_kids']) / 100 * $e['ave'][0]['tour_price'] * $e['kids'];
         $price = $adults + $kids;
         $total_price += $price;
         $count = count_booking($e['ave'][0]['tour_id'], $e['ave'][0]['tour_date']);
@@ -82,6 +83,7 @@ print;
 }
 if (isset($_REQUEST['book'])) {
     $arr = json_decode($_COOKIE['basket']);
+
     foreach ($arr as $e) {
 
         if ($e[6] != $_SESSION['user_login']['member_id']) {

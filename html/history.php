@@ -76,6 +76,7 @@ print;
         }
     </style>
 </head>
+
 <body>
     <?php
     require_once 'login_form.php';
@@ -83,11 +84,22 @@ print;
     ?>
     <div style="height: 10vh"></div>
     <div class="container">
-    <p class="display-3 ">History</p>    
-    <?php echo $av ?>
+        <p class="display-3 ">History</p>
+        <?php if (!empty($av)) : ?>
+            <?php echo $av ?>
+        <?php else : ?>
+            <section class="ui overview bg-light p-5">
+                <div class="ui content-overview  p-5 m-auto text-center">
+                    <h1>History</h1>
+                    <p>Nothing  yet</p>
+                    <p><a class="btn-link" href="tour_list.php">Click here to go to Tour List page</a></p>
+                    <p></p>
+                </div>
+            </section>
+        <?php endif; ?>
     </div>
 
-<script src="../script.js"></script>
+    <script src="../script.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
