@@ -130,30 +130,6 @@ if (isset($_POST['tel_ajax'])) {
                                 <input id="tel_ajax" type="tel" class="form-control text-form-control" name="tel" maxlength="15" placeholder="Telephone" value="<?php echo $mobile; ?>" required aria-describedby="telephone" pattern="^[0-9]+$">
                             </div>
                         </div>
-                        <!-- <div class="flex-box-form">
-                            <div class="col-6">
-                                <label for="datepicker"> Date of birth</label>
-                                <div class="ui right icon ">
-                                    <input id="datepicker" type="text" name="dob" class="form-control text-form-control" readonly />
-                                </div>
-                                <script>
-                                    $('#datepicker').datepicker({});
-                                </script>
-                            </div>
-                            <div class="col-6">
-                                <label for="country">Country</label>
-                                <select class="ui dropdown dropdown-select " name="country" id="country">
-                                    <option value="">Select Country</option>
-                                    <?php
-                                    // add all country
-                                    // asort($EU);
-                                    // foreach ($EU as $key => $value) {
-                                    //     echo "<option>$value</option>";
-                                    // }
-                                    ?>
-                                </select>
-                            </div>
-                        </div> -->
                         <div class="flex-box-form">
                             <div class="col-6">
                                 <label for="passwd"><span>&starf;</span> Password</label>
@@ -171,7 +147,7 @@ if (isset($_POST['tel_ajax'])) {
                             </div>
                             <div class="col-12">
                                 <div class="ui checkbox">
-                                    <input id="policy" required type="checkbox" name="chk_box">
+                                    <input id="policy" required type="checkbox" class="border-primary" name="chk_box">
                                     <label for="policy">I acknowledge that I have read and agree to the <a href="#">Privacy Policy </a> <span class="small text-danger "><?php echo $chk_box_clicked ?></span></label>
                                 </div>
                             </div>
@@ -194,6 +170,7 @@ if (isset($_POST['tel_ajax'])) {
                                 <p id="length" class="invalid">Minimum <b>8 characters</b></p>
                             </div>
 
+            
                             <script>
                                 var myInput = document.getElementById("passwd");
                                 var letter = document.getElementById("letter");
@@ -259,10 +236,6 @@ if (isset($_POST['tel_ajax'])) {
             </div>
         </div>
     </div>
-
-
-
-
     <script src="../script.js"></script>
 </body>
 

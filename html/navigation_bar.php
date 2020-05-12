@@ -12,12 +12,12 @@
             <li class="nav-item">
                 <a class="nav-link" href="tour_list.php">Tour List</a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" href="#">About us</a>
 
-            </li>
+            </li> -->
             <li class="nav-item">
-                <a class="nav-link" href="#">Contact us</a>
+                <a class="nav-link" href="contact_us.php">Contact us</a>
             </li>
         </ul>
         <div class="navbar-nav">

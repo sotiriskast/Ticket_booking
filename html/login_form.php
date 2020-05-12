@@ -30,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['login'])) {
         $email = $_POST['login_email'];
         $passwd = $_POST['login_passwd'];
-
         if (is_email_exist($email)) {
             $login = get_member_by_email($email);
             if (password_verify($passwd, $login['member_passwd'])) {
@@ -61,33 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </li>
 
 btn;
-
-
-
-
-                // echo json_encode(array(
-                //     "success" => $result
-
-                // ));
             } else {
                 $error_button = ' text-danger';
-                // echo json_encode(array(
-                //     "success" => $result,
-                //     "message" => $errors,
-                // ));
-
             }
         } else {
             $error_button = ' text-danger';
-            // echo json_encode(array(
-            //     "success" => $result,
-            //     "message" => $errors,
-            // ));
-
         }
     }
 }
-
 
 if (isset($_COOKIE)) {
     $_SESSION['username'] = $_COOKIE['user'];
@@ -113,7 +93,7 @@ if (!isset($_SESSION['user_login'])) :
                     <div class="ui placeholder segment">
                         <div class="ui two column very relaxed stackable grid">
                             <div class="column">
-                                <form class="ui form" action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="POST">
+                                <form class="ui form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="POST">
                                     <div class="field">
                                         <label>Email</label>
                                         <div class="ui left icon input">

@@ -21,8 +21,8 @@ require_once 'function.php';
     <meta name="description" content="Excursion" />
     <title>Chorkoiris Tour Excursion | Book Now</title>
     <link rel="shortcut icon" href="https://res.cloudinary.com/sotiris/image/upload/v1586768666/Tour_Excursion/logo_f9ozsq.png" type="image/x-icon" />
-
-    <!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" type="text/css" href="../semantic/dist/semantic.min.css">
     <link rel="stylesheet" href="../semantic/dist/components/dropdown.css">
@@ -32,8 +32,6 @@ require_once 'function.php';
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
 
 
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     <link rel="stylesheet" href="../css/style.css">
 
@@ -52,7 +50,7 @@ require_once 'function.php';
     <?php
     require_once 'login_form.php';
     require_once 'navigation_bar.php';
-
+  
     ?>
 
     <div class="slideshow">
@@ -89,7 +87,8 @@ require_once 'function.php';
 
     <?php include_once  'popular_event.php'; ?>
     <hr>
-    <?php include_once 'recent_event.php'; ?>
+    <?php include_once 'recent_event.php';
+     ?>
     <section class="ui overview bg-light pb-5">
 
         <div class="ui segment p-5" style="background-color: transparent">
@@ -115,11 +114,11 @@ require_once 'function.php';
         </div>
     </section>
     <section class="ui overview pb-5 text-center">
-        <h1>We were featured in</h1>
+        <h1>We are featured in</h1>
         <div class="ui container-fluid">
             <div class="ui mt-5 row row-col-4">
                 <div class="col">
-                    <p class="h2 click_trusted">Trusted by <span class="customer">0</span> +</span>
+                    <p class="h2 click_trusted">Trusted by <span class="customer">0</span>
                 </div>
                 <div class="col">
                     <p class="h2">Review <span class="review">0</span> +</p>
@@ -131,20 +130,21 @@ require_once 'function.php';
         </div>
         <script>
             $(".click_trusted").on('click', function(e) {
-                var amount = 5000;
-
+                alert(e.preventDefault);
                 $({
-                    countNum: 0
+                    countNum: 0 //starting point of existing cache
                 }).animate({
-                    countNum: amount //ending
+                    countNum: 5000 //ending
                 }, {
-                    duration: 800,
+                    duration: 400,
                     easing: 'swing',
                     step: function() {
-                        $('.customer').html(Math.ceil(this.countNum));
+                      
+                        $('.customer').html(Math.floor(this.countNum));
                     },
                     complete: function() {
-                        $('.customer').html(amount);
+                        $('.customer').html(5000);
+                
                         //alert('finished');
                     }
                 });
@@ -158,7 +158,7 @@ require_once 'function.php';
 
     </section>
 
-  <?php include_once('footer.html') ?>
+    <?php include_once('footer.html') ?> 
     <script src="../script.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
