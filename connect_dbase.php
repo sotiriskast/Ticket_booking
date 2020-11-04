@@ -3,8 +3,8 @@
 try {
     // create a new PDO object
     $dsn = 'mysql:host=localhost;dbname=1517_TOURS_AND_EXCURSION';
-    $username = 'sotiris';
-    $password ='Asd123!!';
+    $username = 'username';
+    $password ='password';
     //creates PDO object
     $db = new PDO($dsn, $username, $password);
     } catch (PDOException $e) {
